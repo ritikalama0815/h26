@@ -12,7 +12,6 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
@@ -89,11 +88,10 @@ const STATUS_LABEL = {
   done: "Done",
 }
 
-const STATUS_BADGE = {
-  pending: "bg-muted/80 text-muted-foreground border-border/60",
-  in_progress:
-    "bg-amber-500/12 text-amber-800 dark:text-amber-300 border-amber-500/25",
-  done: "bg-emerald-500/12 text-emerald-800 dark:text-emerald-300 border-emerald-500/25",
+const STATUS_STYLE: Record<string, CSSProperties> = {
+  pending: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(194,251,239,0.35)", background: "rgba(255,255,255,0.04)", padding: "1px 6px" },
+  in_progress: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "#f59e0b", background: "rgba(245,158,11,0.08)", padding: "1px 6px" },
+  done: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "#00a38b", background: "rgba(0,163,139,0.08)", padding: "1px 6px" },
 }
 
 /** Saturated, spaced hues — read clearly on light/dark backgrounds */
@@ -328,22 +326,23 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
 
   return (
     <div
-      className="todo-panel-scope flex h-full min-h-0 flex-col bg-linear-to-b from-card/80 to-card/40 text-foreground"
+      className="todo-panel-scope flex h-full min-h-0 flex-col text-foreground"
+      style={{ background: "transparent" }}
       data-todo-panel
     >
       {/* Header */}
-      <div className="shrink-0 border-b border-border/50 bg-card/90 px-3 pb-3 pt-3">
+      <div className="shrink-0 px-3 pb-3 pt-3" style={{ borderBottom: "1px solid rgba(0,163,139,0.08)" }}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
-                <ListTodo className="h-4 w-4" />
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center" style={{ background: "rgba(0,163,139,0.08)", border: "1px solid rgba(0,163,139,0.15)" }}>
+                <ListTodo className="h-3.5 w-3.5" style={{ color: "#00a38b" }} />
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm font-semibold leading-tight tracking-tight">
+                <h3 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em", lineHeight: 1 }}>
                   Tasks
                 </h3>
-                <p className="text-[10px] text-muted-foreground">
+                <p style={{ fontSize: "0.6rem", color: "rgba(194,251,239,0.35)", marginTop: 2 }}>
                   {totalCount === 0
                     ? "Add or generate with @AI"
                     : `${doneCount} of ${totalCount} complete`}
@@ -351,72 +350,73 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
               </div>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-0.5">
-            <Button
+          <div className="flex shrink-0 items-center gap-1">
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Expand all phases"
+              title="Expand all"
               onClick={expandAll}
+              className="flex h-6 w-6 items-center justify-center transition-colors hover:bg-white/5"
+              style={{ border: "1px solid rgba(255,255,255,0.06)" }}
             >
-              <ChevronsDownUp className="h-3.5 w-3.5" />
-            </Button>
-            <Button
+              <ChevronsDownUp className="h-3 w-3" style={{ color: "rgba(194,251,239,0.3)" }} />
+            </button>
+            <button
               type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title="Collapse all phases"
+              title="Collapse all"
               onClick={collapseAll}
+              className="flex h-6 w-6 items-center justify-center transition-colors hover:bg-white/5"
+              style={{ border: "1px solid rgba(255,255,255,0.06)" }}
             >
-              <ChevronsUpDown className="h-3.5 w-3.5" />
-            </Button>
-            <Button
+              <ChevronsUpDown className="h-3 w-3" style={{ color: "rgba(194,251,239,0.3)" }} />
+            </button>
+            <button
               type="button"
-              size="sm"
-              className="h-8 gap-1 px-2.5 text-xs shadow-sm"
               onClick={() => setShowAdd((v) => !v)}
+              className="flex h-6 items-center gap-1 px-2 transition-colors hover:brightness-110"
+              style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.08em", color: "#0a0a0f", background: "#00a38b" }}
             >
-              <Plus className="h-3.5 w-3.5" />
-              Add
-            </Button>
+              <Plus className="h-3 w-3" />
+              ADD
+            </button>
           </div>
         </div>
 
         {/* Progress */}
         {totalCount > 0 && (
           <div className="mt-3 space-y-1.5">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>Progress</span>
-              <span className="font-medium tabular-nums text-foreground">
+            <div className="flex items-center justify-between">
+              <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(194,251,239,0.3)" }}>PROGRESS</span>
+              <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "#e8faf5", fontVariantNumeric: "tabular-nums" }}>
                 {progress}%
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted/80 ring-1 ring-border/40">
+            <div className="h-1.5 w-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
               <div
-                className="h-full rounded-full bg-linear-to-r from-primary to-primary/70 transition-[width] duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-[width] duration-500 ease-out"
+                style={{ width: `${progress}%`, background: "linear-gradient(90deg, #00a38b, #6b9e83)" }}
               />
             </div>
           </div>
         )}
 
         {/* Filters */}
-        <div className="mt-3 flex flex-wrap gap-1">
+        <div className="mt-3 flex gap-0">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setFilter(tab.id)}
-              className={cn(
-                "rounded-full px-2.5 py-1 text-[10px] font-medium transition-all",
-                filter === tab.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
+              className="flex-1 py-1.5 transition-all"
+              style={filter === tab.id ? {
+                fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.1em",
+                color: "#e8faf5", background: "rgba(0,163,139,0.12)",
+                boxShadow: "inset 0 -2px 0 #00a38b",
+              } : {
+                fontSize: "0.58rem", fontWeight: 600, letterSpacing: "0.1em",
+                color: "rgba(194,251,239,0.3)", background: "transparent",
+              }}
             >
-              {tab.label}
+              {tab.label.toUpperCase()}
             </button>
           ))}
         </div>
@@ -435,11 +435,11 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
 
       {/* Add form */}
       {showAdd && (
-        <div className="shrink-0 border-b border-border/40 bg-muted/20 px-3 py-3">
+        <div className="shrink-0 px-3 py-3" style={{ borderBottom: "1px solid rgba(0,163,139,0.08)", background: "rgba(0,163,139,0.03)" }}>
           <div className="space-y-2">
             <div className="space-y-1">
-              <Label className="text-[10px] font-medium text-muted-foreground">
-                Title
+              <Label style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(194,251,239,0.4)" }}>
+                TITLE
               </Label>
               <Input
                 placeholder="What needs to be done?"
@@ -454,8 +454,8 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-medium text-muted-foreground">
-                Assignee
+              <Label style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.14em", color: "rgba(194,251,239,0.4)" }}>
+                ASSIGNEE
               </Label>
               <Select
                 value={newAssignee || NONE}
@@ -506,83 +506,64 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
       <ScrollArea className="min-h-0 flex-1">
         <div className="p-3 pb-4">
           {totalCount === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/10 px-4 py-10 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/8 text-primary ring-1 ring-primary/15">
-                <ListTodo className="h-6 w-6 opacity-80" />
-              </div>
-              <p className="mt-3 text-sm font-medium text-foreground">
+            <div className="flex flex-col items-center justify-center px-4 py-10 text-center" style={{ border: "1px dashed rgba(0,163,139,0.1)" }}>
+              <p style={{ fontSize: "0.85rem", fontWeight: 800, color: "#e8faf5" }}>
                 No tasks yet
               </p>
-              <p className="mt-1 max-w-[220px] text-xs leading-relaxed text-muted-foreground">
+              <p style={{ fontSize: "0.68rem", color: "rgba(194,251,239,0.3)", marginTop: 4, maxWidth: 200, lineHeight: 1.5 }}>
                 Type{" "}
-                <span className="rounded bg-muted px-1 font-mono text-[10px]">
-                  @AI
-                </span>{" "}
-                in chat to generate a plan, or tap{" "}
-                <span className="font-medium text-foreground">Add</span>.
+                <code style={{ fontSize: "0.62rem", fontFamily: "var(--font-mono)", background: "rgba(0,163,139,0.08)", padding: "1px 5px", color: "#00a38b" }}>@AI</code>{" "}
+                in chat to generate a plan, or tap Add.
               </p>
-              <Button
+              <button
                 type="button"
-                size="sm"
-                className="mt-4 h-8 text-xs"
                 onClick={() => setShowAdd(true)}
+                className="mt-4 flex items-center gap-1 transition-colors hover:brightness-110"
+                style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.08em", color: "#0a0a0f", background: "#00a38b", padding: "5px 12px" }}
               >
-                <Plus className="mr-1.5 h-3.5 w-3.5" />
-                New task
-              </Button>
+                <Plus className="h-3 w-3" />
+                NEW TASK
+              </button>
             </div>
           ) : filteredByTab.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border/50 bg-muted/5 py-12 text-center">
-              <Search className="h-8 w-8 text-muted-foreground/30" />
-              <p className="mt-2 text-xs font-medium text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-12 text-center" style={{ border: "1px dashed rgba(255,255,255,0.06)" }}>
+              <Search className="h-5 w-5" style={{ color: "rgba(194,251,239,0.15)" }} />
+              <p style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(194,251,239,0.35)", marginTop: 8 }}>
                 No matches
               </p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground/80">
-                Try another filter or clear search
-              </p>
-              <Button
+              <button
                 type="button"
-                variant="link"
-                className="mt-2 h-auto p-0 text-xs"
-                onClick={() => {
-                  setSearch("")
-                  setFilter("all")
-                }}
+                onClick={() => { setSearch(""); setFilter("all") }}
+                style={{ fontSize: "0.62rem", fontWeight: 700, color: "#00a38b", marginTop: 6, background: "none", border: "none", cursor: "pointer" }}
               >
                 Reset filters
-              </Button>
+              </button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {grouped.map(({ phase, items }) => (
-                <div
-                  key={phase}
-                  className="overflow-hidden rounded-xl border border-border/50 bg-card/50 shadow-xs ring-1 ring-border/30"
-                >
+                <div key={phase}>
+                  {/* Phase header */}
                   <button
                     type="button"
                     onClick={() => togglePhase(phase)}
-                    className="flex w-full items-center gap-2 bg-muted/30 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
+                    className="flex w-full items-center gap-2 px-1 py-2 text-left transition-colors hover:bg-white/3"
                   >
                     {collapsed[phase] ? (
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "rgba(194,251,239,0.25)" }} />
                     ) : (
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <ChevronDown className="h-3 w-3 shrink-0" style={{ color: "rgba(194,251,239,0.25)" }} />
                     )}
-                    <span className="min-w-0 flex-1 truncate text-xs font-semibold tracking-tight">
-                      {phase}
+                    <span className="min-w-0 flex-1 truncate" style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", color: "rgba(194,251,239,0.5)" }}>
+                      {phase.toUpperCase()}
                     </span>
-                    <Badge
-                      variant="secondary"
-                      className="h-5 shrink-0 px-1.5 text-[10px] font-normal tabular-nums"
-                    >
-                      {items.filter((t) => t.status === "done").length}/
-                      {items.length}
-                    </Badge>
+                    <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "rgba(194,251,239,0.25)", fontVariantNumeric: "tabular-nums" }}>
+                      {items.filter((t) => t.status === "done").length}/{items.length}
+                    </span>
                   </button>
 
                   {!collapsed[phase] && (
-                    <ul className="divide-y divide-border/40">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
                       {items.map((todo) => {
                         const StatusIcon = STATUS_ICON[todo.status]
                         const assigneeName = todo.assigned_to
@@ -595,124 +576,94 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
                               MEMBER_COLORS[0]
                             : UNASSIGNED_ACCENT)
 
-                        const rowStyle: CSSProperties = {
-                          borderWidth: 1,
-                          borderStyle: "solid",
-                          borderColor: rgbaFromHex(accent, 0.55),
-                          borderLeftWidth: 4,
-                          borderLeftColor: accent,
-                          borderLeftStyle: "solid",
-                          background: `linear-gradient(105deg, ${rgbaFromHex(accent, 0.24)} 0%, ${rgbaFromHex(accent, 0.09)} 40%, transparent 78%)`,
-                        }
-
                         return (
-                          <li
+                          <div
                             key={todo.id}
                             className={cn(
-                              "group/item rounded-lg px-2 py-2.5 transition-[box-shadow,transform] hover:shadow-md",
-                              todo.status === "done" && "opacity-[0.78]"
+                              "group/item px-2.5 py-2 transition-colors hover:bg-white/3",
+                              todo.status === "done" && "opacity-60"
                             )}
-                            style={rowStyle}
+                            style={{ borderLeft: `3px solid ${accent}`, background: "rgba(0,0,0,0.1)" }}
                           >
                             <div className="flex gap-2">
-                              {/* Status — keep workflow colors; not tied to member hue */}
+                              {/* Status toggle */}
                               <button
                                 type="button"
                                 onClick={() => toggleStatus(todo)}
                                 title={`${STATUS_LABEL[todo.status]} — click to advance`}
-                                className={cn(
-                                  "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-all",
-                                  todo.status === "done"
-                                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                    : todo.status === "in_progress"
-                                      ? "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                      : "border-slate-400/50 bg-white/95 text-slate-600 shadow-sm hover:border-slate-500 dark:border-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-300"
-                                )}
+                                className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center transition-colors"
+                                style={todo.status === "done"
+                                  ? { color: "#00a38b" }
+                                  : todo.status === "in_progress"
+                                    ? { color: "#f59e0b" }
+                                    : { color: "rgba(194,251,239,0.2)" }
+                                }
                               >
                                 <StatusIcon className="h-3.5 w-3.5" />
                               </button>
 
                               <div className="min-w-0 flex-1">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="min-w-0 flex-1 pl-0.5">
+                                <div className="flex items-start justify-between gap-1">
+                                  <div className="min-w-0 flex-1">
                                     <div className="flex flex-wrap items-center gap-1.5">
                                       <p
-                                        className={cn(
-                                          "text-xs font-semibold leading-snug tracking-tight text-foreground",
-                                          todo.status === "done" &&
-                                            "text-muted-foreground line-through decoration-muted-foreground/60"
-                                        )}
+                                        style={todo.status === "done"
+                                          ? { fontSize: "0.75rem", fontWeight: 600, color: "rgba(194,251,239,0.3)", textDecoration: "line-through", lineHeight: 1.4 }
+                                          : { fontSize: "0.75rem", fontWeight: 600, color: "#e8faf5", lineHeight: 1.4 }
+                                        }
                                       >
                                         {todo.title}
                                       </p>
                                       {todo.ai_generated && (
                                         <span
-                                          className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0 text-[9px] font-semibold text-white shadow-sm"
-                                          style={{
-                                            backgroundColor: rgbaFromHex(
-                                              "#7c3aed",
-                                              0.9
-                                            ),
-                                            boxShadow: `0 0 0 1px ${rgbaFromHex("#7c3aed", 0.5)}`,
-                                          }}
-                                          title="Created from an AI plan"
+                                          className="inline-flex items-center gap-0.5"
+                                          style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.08em", color: "#c2fbef", background: "rgba(107,158,131,0.15)", padding: "1px 4px" }}
+                                          title="AI generated"
                                         >
-                                          <Sparkles className="h-2.5 w-2.5" />
+                                          <Sparkles className="h-2 w-2" />
                                           AI
                                         </span>
                                       )}
                                     </div>
                                     {todo.description && (
-                                      <p className="mt-1 max-h-28 overflow-y-auto whitespace-pre-line text-[10px] leading-relaxed text-muted-foreground">
+                                      <p className="mt-0.5 max-h-20 overflow-y-auto whitespace-pre-line" style={{ fontSize: "0.62rem", color: "rgba(194,251,239,0.3)", lineHeight: 1.5 }}>
                                         {todo.description}
                                       </p>
                                     )}
                                   </div>
 
-                                  <Button
+                                  <button
                                     type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/item:opacity-100"
+                                    className="h-5 w-5 shrink-0 flex items-center justify-center opacity-0 transition-opacity group-hover/item:opacity-100"
                                     title="Delete task"
                                     onClick={() => setDeleteTarget(todo)}
+                                    style={{ color: "rgba(239,68,68,0.5)" }}
                                   >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
                                 </div>
 
-                                <div className="mt-2 flex flex-wrap items-center gap-2">
-                                  <span
-                                    className={cn(
-                                      "inline-flex items-center rounded-md border px-1.5 py-0 text-[9px] font-semibold",
-                                      STATUS_BADGE[todo.status]
-                                    )}
-                                  >
-                                    {STATUS_LABEL[todo.status]}
+                                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                                  <span style={STATUS_STYLE[todo.status]}>
+                                    {STATUS_LABEL[todo.status].toUpperCase()}
                                   </span>
 
                                   <div className="flex min-w-0 flex-1 items-center gap-1.5">
                                     {assigneeName ? (
                                       <div
-                                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                                        style={{
-                                          backgroundColor: accent,
-                                          boxShadow: `
-                                            0 0 0 2px var(--card),
-                                            0 0 0 4px ${accent},
-                                            0 2px 8px ${rgbaFromHex(accent, 0.55)}
-                                          `,
-                                        }}
+                                        className="flex h-5 w-5 shrink-0 items-center justify-center"
+                                        style={{ fontSize: "0.5rem", fontWeight: 800, color: accent, background: rgbaFromHex(accent, 0.15) }}
                                         title={assigneeName}
                                       >
                                         {initials(assigneeName)}
                                       </div>
                                     ) : (
                                       <div
-                                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-slate-400/50 bg-slate-100 text-slate-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                                        className="flex h-5 w-5 shrink-0 items-center justify-center"
+                                        style={{ border: "1px dashed rgba(255,255,255,0.1)" }}
                                         title="Unassigned"
                                       >
-                                        <User className="h-3 w-3" />
+                                        <User className="h-2.5 w-2.5" style={{ color: "rgba(194,251,239,0.2)" }} />
                                       </div>
                                     )}
                                     <Select
@@ -725,22 +676,12 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
                                       }
                                     >
                                       <SelectTrigger
-                                        className={cn(
-                                          "h-8 min-w-0 flex-1 rounded-md border text-[10px] font-medium shadow-none [&_svg]:h-3 [&_svg]:w-3",
-                                          !assigneeName && "text-muted-foreground"
-                                        )}
+                                        className="h-6 min-w-0 flex-1 text-[10px] font-medium shadow-none [&_svg]:h-2.5 [&_svg]:w-2.5"
                                         style={{
-                                          borderColor: rgbaFromHex(
-                                            accent,
-                                            assigneeName ? 0.55 : 0.28
-                                          ),
-                                          backgroundColor: rgbaFromHex(
-                                            accent,
-                                            assigneeName ? 0.16 : 0.05
-                                          ),
-                                          ...(assigneeName
-                                            ? { color: accent }
-                                            : {}),
+                                          borderColor: rgbaFromHex(accent, 0.2),
+                                          backgroundColor: "transparent",
+                                          color: assigneeName ? accent : "rgba(194,251,239,0.3)",
+                                          fontSize: "0.62rem",
                                         }}
                                       >
                                         <SelectValue
@@ -759,7 +700,7 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
                                           >
                                             <span className="flex items-center gap-2">
                                               <span
-                                                className="h-2 w-2 shrink-0 rounded-full"
+                                                className="h-1.5 w-1.5 shrink-0"
                                                 style={{
                                                   backgroundColor:
                                                     memberColorMap.current[
@@ -777,10 +718,10 @@ export function TodoPanel({ groupId, userId, initialTodos, members }: TodoPanelP
                                 </div>
                               </div>
                             </div>
-                          </li>
+                          </div>
                         )
                       })}
-                    </ul>
+                    </div>
                   )}
                 </div>
               ))}

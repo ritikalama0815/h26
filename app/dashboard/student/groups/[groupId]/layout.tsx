@@ -20,7 +20,7 @@ export default function StudentGroupLayout({ children }: { children: React.React
     <div className="flex h-screen flex-col overflow-hidden">
       {/* Tab bar */}
       <div className="shrink-0 px-5 pt-4 pb-2">
-        <nav className="flex gap-1 rounded-lg border border-border/50 bg-card/50 p-1">
+        <nav className="flex gap-0.5 p-1" style={{ border: "1px solid rgba(0,163,139,0.08)", background: "rgba(17,17,22,0.5)" }}>
           {tabs.map((tab) => {
             const href = base + tab.suffix
             const isActive = tab.suffix === ""
@@ -31,13 +31,24 @@ export default function StudentGroupLayout({ children }: { children: React.React
               <Link key={tab.suffix} href={href} className="flex-1">
                 <div
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center justify-center gap-2 px-3 py-2 transition-all",
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "text-white"
+                      : "hover:bg-white/4"
                   )}
+                  style={isActive ? {
+                    background: "rgba(0,163,139,0.12)",
+                    boxShadow: "inset 0 0 0 1px rgba(0,163,139,0.2)",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.04em",
+                  } : {
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    color: "rgba(194,251,239,0.35)",
+                  }}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5" />
                   {tab.label}
                 </div>
               </Link>

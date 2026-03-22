@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Loader2, CheckCircle2, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
@@ -62,17 +61,17 @@ export function InstructorQuestionCard({ question: q, projectId }: Props) {
   }
 
   return (
-    <div className="rounded-md border border-border p-3 space-y-2">
+    <div style={{ padding: "14px 16px", borderLeft: resolved ? "3px solid #00a38b" : "3px solid #f59e0b", background: "rgba(0,0,0,0.15)" }} className="space-y-2.5">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-sm font-medium leading-snug">{q.content}</p>
+        <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#e8faf5", lineHeight: 1.5 }}>{q.content}</p>
         {resolved && (
-          <Badge variant="secondary" className="text-[10px] shrink-0">
-            Resolved
-          </Badge>
+          <span style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", color: "#00a38b", background: "rgba(0,163,139,0.1)", padding: "2px 8px" }}>
+            RESOLVED
+          </span>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">
-        From <span className="text-foreground/80">{asker}</span>
+      <p style={{ fontSize: "0.68rem", color: "rgba(194,251,239,0.35)" }}>
+        From <span style={{ color: "rgba(194,251,239,0.6)" }}>{asker}</span>
         {" · "}
         {new Date(q.created_at).toLocaleString(undefined, {
           month: "short",
@@ -82,24 +81,25 @@ export function InstructorQuestionCard({ question: q, projectId }: Props) {
         })}
       </p>
       <Textarea
-        placeholder="Write a reply for your students (optional)…"
+        placeholder="Write a reply for your students…"
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
-        className="min-h-[72px] text-sm resize-y"
+        className="min-h-[64px] text-sm resize-y"
         disabled={resolved}
       />
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           size="sm"
-          variant="secondary"
+          variant="outline"
           disabled={saving || resolved}
           onClick={() => save(false)}
+          className="text-[11px] font-bold tracking-wide h-7 px-3"
         >
           {saving ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
-            "Save reply"
+            "SAVE REPLY"
           )}
         </Button>
         <Button
@@ -107,23 +107,24 @@ export function InstructorQuestionCard({ question: q, projectId }: Props) {
           size="sm"
           disabled={saving || resolved}
           onClick={() => save(true)}
+          className="text-[11px] font-bold tracking-wide h-7 px-3"
         >
           {saving ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
             <>
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-              Mark resolved
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              RESOLVE
             </>
           )}
         </Button>
-        <Button type="button" size="sm" variant="outline" asChild>
+        <Button type="button" size="sm" variant="outline" asChild className="text-[11px] font-bold tracking-wide h-7 px-3">
           <Link
             href={`/dashboard/instructor/projects/${projectId}/groups/${q.group_id}`}
             className="gap-1"
           >
-            <ExternalLink className="h-3 w-3" />
-            Group
+            <ExternalLink className="h-2.5 w-2.5" />
+            GROUP
           </Link>
         </Button>
       </div>

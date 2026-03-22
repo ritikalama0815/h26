@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   const isInstructor = profile?.role === "instructor"
 
   return (
-    <div className="dashboard-canvas min-h-screen">
+    <div className="dark dashboard-canvas min-h-screen">
       <AppSidebar
         user={{ email: user.email, user_metadata: user.user_metadata }}
         isInstructor={isInstructor}

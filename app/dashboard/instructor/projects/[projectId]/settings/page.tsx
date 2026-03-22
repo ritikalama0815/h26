@@ -100,7 +100,7 @@ export default function ProjectSettingsPage() {
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
             </div>
             {message && (
-              <p className={`text-sm ${message.type === "success" ? "text-green-600" : "text-destructive"}`}>
+              <p className={`text-sm ${message.type === "success" ? "text-primary" : "text-destructive"}`}>
                 {message.text}
               </p>
             )}

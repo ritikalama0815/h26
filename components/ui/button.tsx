@@ -13,18 +13,18 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:
-          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-white/3 dark:border-white/10 dark:hover:bg-white/6 dark:hover:border-[rgba(0,163,139,0.25)]',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost:
-          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-white/5',
         link: 'text-primary underline-offset-4 hover:underline',
         gradient:
-          'border-0 bg-linear-to-r from-[oklch(0.52_0.22_300)] via-[oklch(0.55_0.24_305)] to-[oklch(0.5_0.2_285)] text-white shadow-lg shadow-[oklch(0.45_0.2_300_/_0.35)] transition-all hover:brightness-110 hover:shadow-xl hover:shadow-[oklch(0.45_0.2_300_/_0.45)] active:scale-[0.98] dark:from-[oklch(0.58_0.2_300)] dark:via-[oklch(0.62_0.22_305)] dark:to-[oklch(0.55_0.18_285)]',
+          'border-0 [background-image:var(--gradient-button)] text-white shadow-lg shadow-[var(--shadow-brand)] transition-all hover:brightness-110 hover:shadow-xl hover:shadow-[var(--shadow-brand-strong)] active:scale-[0.98] dark:[background-image:var(--gradient-button-dark)]',
         hero:
-          'border-0 bg-linear-to-br from-primary via-[oklch(0.48_0.22_295)] to-[oklch(0.45_0.2_285)] text-primary-foreground shadow-xl shadow-primary/35 ring-1 ring-white/15 transition-all hover:brightness-105 hover:shadow-2xl hover:shadow-primary/25 active:scale-[0.98]',
+          'border-0 [background-image:var(--gradient-hero-button)] text-primary-foreground shadow-xl shadow-[var(--shadow-brand)] ring-1 ring-white/15 transition-all hover:brightness-105 hover:shadow-2xl hover:shadow-primary/25 active:scale-[0.98]',
         outlineGlow:
-          'border-2 border-primary/40 bg-background/80 text-primary shadow-[0_0_20px_-5px_oklch(0.55_0.2_300_/_0.4)] backdrop-blur-sm transition-all hover:border-primary hover:bg-primary/5 hover:shadow-[0_0_28px_-4px_oklch(0.55_0.2_300_/_0.55)]',
+          'border-2 border-primary/40 bg-background/80 text-primary shadow-[var(--glow-primary-soft)] backdrop-blur-sm transition-all hover:border-primary hover:bg-primary/5 hover:shadow-[var(--glow-primary-strong)]',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

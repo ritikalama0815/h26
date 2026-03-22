@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       {
         headers: {
           Accept: "application/vnd.github.v3+json",
-          "User-Agent": "FairGroup-App",
+          "User-Agent": "CoLab-App",
         },
       }
     )
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
           {
             headers: {
               Accept: "application/vnd.github.v3+json",
-              "User-Agent": "FairGroup-App",
+              "User-Agent": "CoLab-App",
             },
           }
         )

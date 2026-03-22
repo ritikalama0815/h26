@@ -7,8 +7,12 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'track group projects',
-  description: 'AI-powered solution to track group project contributions for university students. Analyze GitHub commits, Google Docs activity, and generate fair grading reports.',
+  title: 'CoLab — Group Work Made Easy',
+  description: 'The teamwork hub for students and instructors. Divide tasks, chat in real time, sync GitHub, and generate contribution reports.',
+  icons: {
+    icon: '/colab-logo.png',
+    apple: '/colab-logo.png',
+  },
 }
 
 export default function RootLayout({

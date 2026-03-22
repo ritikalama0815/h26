@@ -136,7 +136,7 @@ export function AIPlanCard({
       {/* Actions */}
       <div className="flex items-center gap-2 px-4 py-3 border-t border-primary/10 bg-primary/5">
         {confirmed ? (
-          <div className="flex items-center gap-2 text-xs text-green-600 font-medium">
+          <div className="flex items-center gap-2 text-xs text-primary font-medium">
             <Check className="h-3.5 w-3.5" />
             Plan confirmed — tasks added to To-Do list
           </div>

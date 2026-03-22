@@ -1,11 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound, redirect } from "next/navigation"
 import { getCurrentProfile } from "@/lib/auth/profile"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  ArrowLeft, Users, GitCommit, MessageSquare,
+  ArrowLeft, Users, GitCommit,
   FileUp, MessageSquareWarning
 } from "lucide-react"
 import Link from "next/link"
@@ -75,64 +73,59 @@ export default async function InstructorGroupPage({ params }: Props) {
     .order("created_at", { ascending: false })
 
   const gColor = getGroupColor(group.sort_order ?? 0)
+  const openQuestions = (questions || []).filter((q) => !q.resolved).length
+
+  const kpis = [
+    { value: (members || []).length, label: "Members", color: gColor.hex, icon: Users },
+    { value: (commits || []).length, label: "Commits", color: "#6b9e83", icon: GitCommit },
+    { value: (submissions || []).length, label: "Submissions", color: "#00a38b", icon: FileUp },
+    { value: openQuestions, label: "Open Qs", color: openQuestions > 0 ? "#f59e0b" : "#6b9e83", icon: MessageSquareWarning },
+  ]
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8 space-y-8">
-      <div className="flex items-center gap-4">
+    <div className="mx-auto max-w-6xl px-6 sm:px-10 py-10 space-y-10">
+
+      {/* Header */}
+      <div className="flex items-start gap-4">
         <Link href={`/dashboard/instructor/projects/${projectId}`}>
-          <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
+          <button className="mt-1 flex h-8 w-8 items-center justify-center transition-colors hover:bg-white/5" style={{ border: "1px solid rgba(0,163,139,0.12)" }}>
+            <ArrowLeft className="h-3.5 w-3.5" style={{ color: "rgba(194,251,239,0.4)" }} />
+          </button>
         </Link>
         <div>
-          <div className="flex items-center gap-2">
-            <span className={`h-3 w-3 rounded-full ${gColor.bg}`} />
-            <h1 className="text-2xl font-bold">{group.name}</h1>
-            <Badge variant="secondary">{project.name}</Badge>
+          <div className="flex items-center gap-3 mb-3">
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: gColor.hex }} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.28em", color: "#6b9e83" }}>
+              {project.name.toUpperCase()}
+            </span>
           </div>
-          <p className="text-muted-foreground">
-            {(members || []).length} members
-            {group.github_repo_url && " · GitHub connected"}
+          <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.02em", color: "#e8faf5" }}>
+            {group.name}
+          </h1>
+          <p style={{ fontSize: "0.82rem", color: "rgba(194,251,239,0.35)", marginTop: 6 }}>
+            {(members || []).length} members{group.github_repo_url ? " · GitHub connected" : ""}
           </p>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card className="border-border/60 bg-card/80">
-          <CardContent className="flex items-center gap-3 py-3">
-            <Users className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-2xl font-bold">{(members || []).length}</p>
-              <p className="text-xs text-muted-foreground">Members</p>
+      {/* KPI strip */}
+      <div className="grid grid-cols-4 gap-0" style={{ border: "1px solid rgba(0,163,139,0.1)" }}>
+        {kpis.map((s, i) => {
+          const Icon = s.icon
+          return (
+            <div key={i} style={{ padding: "18px 20px", borderRight: i < 3 ? "1px solid rgba(0,163,139,0.08)" : undefined, position: "relative", overflow: "hidden" }}>
+              <div className="flex items-center justify-between mb-2">
+                <span style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.2em", color: "rgba(194,251,239,0.3)" }}>
+                  {s.label.toUpperCase()}
+                </span>
+                <Icon className="h-3 w-3" style={{ color: s.color, opacity: 0.5 }} />
+              </div>
+              <div style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 900, lineHeight: 1, color: s.color }}>
+                {s.value}
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/60 bg-card/80">
-          <CardContent className="flex items-center gap-3 py-3">
-            <GitCommit className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-2xl font-bold">{(commits || []).length}</p>
-              <p className="text-xs text-muted-foreground">Commits</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/60 bg-card/80">
-          <CardContent className="flex items-center gap-3 py-3">
-            <FileUp className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-2xl font-bold">{(submissions || []).length}</p>
-              <p className="text-xs text-muted-foreground">Submissions</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/60 bg-card/80">
-          <CardContent className="flex items-center gap-3 py-3">
-            <MessageSquareWarning className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-2xl font-bold">{(questions || []).filter((q) => !q.resolved).length}</p>
-              <p className="text-xs text-muted-foreground">Open Questions</p>
-            </div>
-          </CardContent>
-        </Card>
+          )
+        })}
       </div>
 
       <ReportGenerator
@@ -143,94 +136,139 @@ export default async function InstructorGroupPage({ params }: Props) {
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
+
         {/* Members */}
-        <Card>
-          <CardHeader><CardTitle>Members</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
+        <div style={{ background: "rgba(17,17,22,0.4)", border: "1px solid rgba(0,163,139,0.08)", padding: "24px" }}>
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="flex h-7 w-7 items-center justify-center" style={{ background: `${gColor.hex}12`, border: `1px solid ${gColor.hex}25` }}>
+              <Users className="h-3.5 w-3.5" style={{ color: gColor.hex }} />
+            </div>
+            <h3 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em" }}>
+              Members
+            </h3>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {(members || []).map((m) => {
               const p = m.profiles as { full_name: string | null; email: string | null; github_username: string | null } | null
               return (
-                <div key={m.id} className="flex items-center gap-3 rounded-md border border-border/50 px-3 py-2">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${gColor.bgSubtle} text-xs font-medium ${gColor.text}`}>
+                <div
+                  key={m.id}
+                  className="flex items-center gap-3"
+                  style={{ padding: "10px 12px", borderLeft: `3px solid ${gColor.hex}`, background: "rgba(0,0,0,0.15)" }}
+                >
+                  <div
+                    className="flex h-7 w-7 shrink-0 items-center justify-center"
+                    style={{ background: `${gColor.hex}15`, fontSize: "0.68rem", fontWeight: 800, color: gColor.hex }}
+                  >
                     {(p?.full_name || p?.email || "?").charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{p?.full_name || p?.email}</p>
-                    <p className="truncate text-xs text-muted-foreground">{p?.github_username || "no GitHub"}</p>
+                    <p className="truncate" style={{ fontSize: "0.82rem", fontWeight: 600, color: "#e8faf5" }}>
+                      {p?.full_name || p?.email}
+                    </p>
+                    <p className="truncate" style={{ fontSize: "0.65rem", fontFamily: "var(--font-mono)", color: "rgba(194,251,239,0.3)" }}>
+                      {p?.github_username || "no GitHub"}
+                    </p>
                   </div>
                 </div>
               )
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Chat — private to students; @question posts appear below */}
-        <Card className="border-border/60 bg-card/80">
-          <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-muted-foreground" /> Group Chat</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Group chat is private to instructors, but when students use{" "}
-              <code className="rounded bg-muted px-1 py-0.5 text-[11px] font-mono">@question</code>{" "}
-              in chat, the question is copied here for you to answer.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Chat info */}
+        <div style={{ background: "rgba(17,17,22,0.4)", border: "1px solid rgba(0,163,139,0.08)", padding: "24px" }}>
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-7 w-7 items-center justify-center" style={{ background: "rgba(0,163,139,0.08)", border: "1px solid rgba(0,163,139,0.15)" }}>
+              <MessageSquareWarning className="h-3.5 w-3.5" style={{ color: "#00a38b" }} />
+            </div>
+            <h3 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em" }}>
+              Group Chat
+            </h3>
+          </div>
+          <p style={{ fontSize: "0.82rem", color: "rgba(194,251,239,0.4)", lineHeight: 1.6 }}>
+            Chat is private to students. When they use{" "}
+            <code style={{ fontSize: "0.72rem", fontFamily: "var(--font-mono)", background: "rgba(0,163,139,0.08)", padding: "2px 6px", color: "#00a38b" }}>@question</code>{" "}
+            in chat, the question appears below for you to answer.
+          </p>
+        </div>
 
         {/* Submissions */}
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><FileUp className="h-5 w-5 text-primary" /> Submissions</CardTitle></CardHeader>
-          <CardContent>
-            {(!submissions || submissions.length === 0) ? (
-              <p className="text-sm text-muted-foreground">No submissions yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {submissions.map((s) => (
-                  <div key={s.id} className="rounded-md border border-border p-3">
-                    <p className="text-sm font-medium">{s.title}</p>
-                    {s.link_url && <a href={s.link_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{s.link_url}</a>}
-                    {s.file_url && <a href={s.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">Download file</a>}
-                    {s.notes && <p className="mt-1 text-xs text-muted-foreground">{s.notes}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div style={{ background: "rgba(17,17,22,0.4)", border: "1px solid rgba(0,163,139,0.08)", padding: "24px" }}>
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="flex h-7 w-7 items-center justify-center" style={{ background: "rgba(0,163,139,0.08)", border: "1px solid rgba(0,163,139,0.15)" }}>
+              <FileUp className="h-3.5 w-3.5" style={{ color: "#00a38b" }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em", lineHeight: 1 }}>
+                Submissions
+              </h3>
+              <p style={{ fontSize: "0.58rem", fontWeight: 600, letterSpacing: "0.12em", color: "rgba(194,251,239,0.3)", marginTop: 2 }}>
+                {(submissions || []).length} TOTAL
+              </p>
+            </div>
+          </div>
+          {(!submissions || submissions.length === 0) ? (
+            <p style={{ fontSize: "0.82rem", color: "rgba(194,251,239,0.3)" }}>No submissions yet.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {submissions.map((s) => (
+                <div key={s.id} style={{ padding: "12px 14px", borderLeft: "3px solid rgba(0,163,139,0.2)", background: "rgba(0,0,0,0.15)" }}>
+                  <p style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e8faf5" }}>{s.title}</p>
+                  {s.link_url && (
+                    <a href={s.link_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.72rem", color: "#00a38b" }}>
+                      {s.link_url}
+                    </a>
+                  )}
+                  {s.file_url && (
+                    <a href={s.file_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.72rem", color: "#00a38b" }}>
+                      Download file
+                    </a>
+                  )}
+                  {s.notes && <p style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.3)", marginTop: 4 }}>{s.notes}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Questions (from @question in student chat + any other entries) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquareWarning className="h-5 w-5 text-primary" /> Questions
-            </CardTitle>
-            <p className="text-xs text-muted-foreground font-normal">
-              Students send these with <code className="rounded bg-muted px-1 font-mono">@question …</code> in group chat.
-            </p>
-          </CardHeader>
-          <CardContent>
-            {(!questions || questions.length === 0) ? (
-              <p className="text-sm text-muted-foreground">No questions yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {questions.map((q) => (
-                  <InstructorQuestionCard
-                    key={q.id}
-                    projectId={projectId}
-                    question={{
-                      id: q.id,
-                      group_id: q.group_id,
-                      content: q.content,
-                      answer: q.answer,
-                      resolved: q.resolved,
-                      created_at: q.created_at,
-                      profiles: q.profiles as { full_name: string | null; email: string | null } | null,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Questions */}
+        <div style={{ background: "rgba(17,17,22,0.4)", border: "1px solid rgba(0,163,139,0.08)", padding: "24px" }}>
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex h-7 w-7 items-center justify-center" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+              <MessageSquareWarning className="h-3.5 w-3.5" style={{ color: "#f59e0b" }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em", lineHeight: 1 }}>
+                Questions
+              </h3>
+              <p style={{ fontSize: "0.58rem", fontWeight: 600, letterSpacing: "0.12em", color: "rgba(194,251,239,0.3)", marginTop: 2 }}>
+                VIA <code style={{ fontFamily: "var(--font-mono)" }}>@QUESTION</code>
+              </p>
+            </div>
+          </div>
+          {(!questions || questions.length === 0) ? (
+            <p style={{ fontSize: "0.82rem", color: "rgba(194,251,239,0.3)" }}>No questions yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {questions.map((q) => (
+                <InstructorQuestionCard
+                  key={q.id}
+                  projectId={projectId}
+                  question={{
+                    id: q.id,
+                    group_id: q.group_id,
+                    content: q.content,
+                    answer: q.answer,
+                    resolved: q.resolved,
+                    created_at: q.created_at,
+                    profiles: q.profiles as { full_name: string | null; email: string | null } | null,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

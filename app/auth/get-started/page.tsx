@@ -1,79 +1,133 @@
+"use client"
+
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { GraduationCap, Presentation, Users, Sparkles } from "lucide-react"
+import Image from "next/image"
+import dynamic from "next/dynamic"
+import { motion } from "framer-motion"
+import { GraduationCap, Presentation, ArrowRight } from "lucide-react"
+
+const FloatingLines = dynamic(() => import("@/components/landing/floating-lines"), { ssr: false })
+
+const PALETTE = ["#3b2b2e", "#6c3837", "#6b9e83", "#00a38b", "#c2fbef"]
 
 export default function GetStartedPage() {
   return (
-    <div className="relative mesh-page-bg flex min-h-svh w-full items-center justify-center overflow-hidden p-6 md:p-10">
-      <div className="pointer-events-none absolute left-1/4 top-20 h-48 w-48 rounded-full bg-[oklch(0.65_0.2_300_/_0.35)] blur-3xl" />
-      <div className="pointer-events-none absolute bottom-24 right-1/4 h-40 w-40 rounded-full bg-[oklch(0.58_0.18_285_/_0.3)] blur-3xl" />
+    <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden" style={{ background: "#0a0a0f" }}>
+      {/* Shader bg */}
+      <div className="absolute inset-0 z-0" style={{ opacity: 0.6 }}>
+        <FloatingLines
+          linesGradient={PALETTE}
+          enabledWaves={["middle", "bottom"]}
+          lineCount={[4, 3]}
+          lineDistance={[5, 6]}
+          animationSpeed={0.4}
+          interactive={false}
+          parallax={false}
+          mixBlendMode="screen"
+        />
+      </div>
 
-      <div className="relative z-10 w-full max-w-lg">
-        <div className="flex flex-col gap-8">
-          <Link href="/" className="flex items-center justify-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-[oklch(0.45_0.2_285)] shadow-lg shadow-primary/25">
-              <Users className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight text-foreground">FairGroup</span>
+      <div className="relative z-10 w-full max-w-lg px-6 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col gap-8"
+        >
+          {/* Logo */}
+          <Link href="/" className="flex items-center justify-center gap-2.5">
+            <Image src="/colab-logo.png" alt="CoLab" width={44} height={44} className="rounded-lg" />
+            <span className="text-lg font-bold tracking-tight text-white">CoLab</span>
           </Link>
 
+          {/* Heading */}
           <div className="text-center">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="h-3.5 w-3.5" />
-              Choose your role
+            <div className="mb-3 flex items-center justify-center gap-2">
+              <div style={{ width: 24, height: 2, background: "#00a38b" }} />
+              <span style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.22em", color: "#6b9e83" }}>
+                CHOOSE YOUR ROLE
+              </span>
+              <div style={{ width: 24, height: 2, background: "#00a38b" }} />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              How will you use FairGroup?
+            <h1 className="text-white" style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 900, lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+              How will you use CoLab?
             </h1>
-            <p className="mt-2 text-muted-foreground">
-              Teachers create groups and add students; students join when invited.
+            <p style={{ fontSize: "0.92rem", color: "rgba(194,251,239,0.45)", marginTop: 8 }}>
+              Teachers create projects and form groups; students join when invited.
             </p>
           </div>
 
+          {/* Role cards */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="feature-card-glow flex h-full flex-col border-border/80 bg-card/90">
-              <CardHeader className="flex flex-1 flex-col">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15">
-                  <GraduationCap className="h-7 w-7 text-primary" />
+            {/* Student */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+            >
+              <Link
+                href="/auth/sign-up?role=student"
+                className="group block p-6 transition-all duration-200"
+                style={{
+                  background: "rgba(10,10,15,0.85)",
+                  border: "1px solid rgba(0,163,139,0.2)",
+                  backdropFilter: "blur(12px)",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,163,139,0.45)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 0 30px rgba(0,163,139,0.12)" }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,163,139,0.2)"; (e.currentTarget as HTMLElement).style.boxShadow = "none" }}
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center" style={{ background: "rgba(0,163,139,0.12)" }}>
+                  <GraduationCap className="h-6 w-6" style={{ color: "#00a38b" }} />
                 </div>
-                <CardTitle className="text-lg">Student</CardTitle>
-                <CardDescription className="flex-1">
-                  Join groups your instructor adds you to and track your contributions.
-                </CardDescription>
-                <Button className="mt-4 w-full" variant="outlineGlow" asChild>
-                  <Link href="/auth/sign-up?role=student">Continue as student</Link>
-                </Button>
-              </CardHeader>
-            </Card>
-            <Card className="feature-card-glow flex h-full flex-col border-border/80 bg-card/90">
-              <CardHeader className="flex flex-1 flex-col">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[oklch(0.72_0.14_310_/_0.25)]">
-                  <Presentation className="h-7 w-7 text-accent-foreground" />
+                <div className="text-white mb-1" style={{ fontSize: "1.1rem", fontWeight: 800 }}>Student</div>
+                <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "rgba(194,251,239,0.4)", marginBottom: 16 }}>
+                  Join your team, chat, divide tasks, and track progress together.
+                </p>
+                <div className="flex items-center gap-2 transition-all group-hover:gap-3" style={{ fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.12em", color: "#00a38b" }}>
+                  CONTINUE <ArrowRight className="w-3.5 h-3.5" />
                 </div>
-                <CardTitle className="text-lg">Teacher</CardTitle>
-                <CardDescription className="flex-1">
-                  Create groups, add students, and run contribution reports.
-                </CardDescription>
-                <Button className="mt-4 w-full" variant="gradient" asChild>
-                  <Link href="/auth/sign-up?role=instructor">Continue as teacher</Link>
-                </Button>
-              </CardHeader>
-            </Card>
+              </Link>
+            </motion.div>
+
+            {/* Teacher */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.5 }}
+            >
+              <Link
+                href="/auth/sign-up?role=instructor"
+                className="group block p-6 transition-all duration-200"
+                style={{
+                  background: "rgba(10,10,15,0.85)",
+                  border: "1px solid rgba(107,158,131,0.2)",
+                  backdropFilter: "blur(12px)",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(107,158,131,0.45)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 0 30px rgba(107,158,131,0.12)" }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(107,158,131,0.2)"; (e.currentTarget as HTMLElement).style.boxShadow = "none" }}
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center" style={{ background: "rgba(107,158,131,0.12)" }}>
+                  <Presentation className="h-6 w-6" style={{ color: "#6b9e83" }} />
+                </div>
+                <div className="text-white mb-1" style={{ fontSize: "1.1rem", fontWeight: 800 }}>Teacher</div>
+                <p style={{ fontSize: "0.85rem", lineHeight: 1.6, color: "rgba(194,251,239,0.4)", marginBottom: 16 }}>
+                  Create projects, form groups, monitor progress, and generate reports.
+                </p>
+                <div className="flex items-center gap-2 transition-all group-hover:gap-3" style={{ fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.12em", color: "#6b9e83" }}>
+                  CONTINUE <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+            </motion.div>
           </div>
 
-          <p className="text-center text-sm text-muted-foreground">
+          {/* Login link */}
+          <p className="text-center" style={{ fontSize: "0.85rem", color: "rgba(194,251,239,0.4)" }}>
             Already have an account?{" "}
-            <Link href="/auth/login" className="font-medium text-primary underline underline-offset-4">
+            <Link href="/auth/login" className="font-medium underline underline-offset-4" style={{ color: "#00a38b" }}>
               Log in
             </Link>
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

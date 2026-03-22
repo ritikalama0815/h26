@@ -24,7 +24,7 @@ export async function sendInstructorQuestionEmail(
   payload: QuestionEmailPayload
 ): Promise<{ ok: boolean; skipped?: string; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.EMAIL_FROM || "FairGroup <onboarding@resend.dev>"
+  const from = process.env.EMAIL_FROM || "CoLab <onboarding@resend.dev>"
 
   if (!apiKey) {
     console.warn(
@@ -48,7 +48,7 @@ export async function sendInstructorQuestionEmail(
       ${escapeHtml(payload.questionText)}
     </blockquote>
     <p style="margin-top: 16px;">
-      <a href="${escapeHtml(payload.openInAppUrl)}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 8px; font-size: 14px;">Open in FairGroup</a>
+      <a href="${escapeHtml(payload.openInAppUrl)}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 16px; border-radius: 8px; font-size: 14px;">Open in CoLab</a>
     </p>
   </div>
   `.trim()
