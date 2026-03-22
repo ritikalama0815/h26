@@ -4,7 +4,6 @@ import { useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -331,25 +330,37 @@ export function CreateProjectForm() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <Link href="/dashboard/instructor">
-          <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
+          <button className="mt-1 flex h-8 w-8 items-center justify-center transition-colors hover:bg-white/5" style={{ border: "1px solid rgba(0,163,139,0.12)" }}>
+            <ArrowLeft className="h-3.5 w-3.5" style={{ color: "rgba(194,251,239,0.4)" }} />
+          </button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Create New Project</h1>
-          <p className="text-muted-foreground">Set up a project, add students, and assign them to groups</p>
+          <div className="flex items-center gap-3 mb-3">
+            <div style={{ width: 24, height: 2, background: "#00a38b" }} />
+            <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.28em", color: "#6b9e83" }}>
+              NEW PROJECT
+            </span>
+          </div>
+          <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", fontWeight: 900, lineHeight: 0.95, letterSpacing: "-0.02em", color: "#e8faf5" }}>
+            Create Project
+          </h1>
+          <p style={{ fontSize: "0.85rem", color: "rgba(194,251,239,0.35)", marginTop: 6 }}>
+            Set up a project, add students, and assign them to groups.
+          </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Project details */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Project Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div style={{ background: "rgba(17,17,22,0.5)", border: "1px solid rgba(0,163,139,0.1)", padding: "24px 28px" }}>
+          <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "0.02em", marginBottom: 16 }}>
+            Project Details
+          </h2>
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Project Name</Label>
+              <Label htmlFor="name" className="text-xs font-semibold tracking-wide" style={{ color: "rgba(194,251,239,0.5)" }}>PROJECT NAME</Label>
               <Input
                 id="name"
                 placeholder="e.g., CS 101 Final Project"
@@ -359,7 +370,7 @@ export function CreateProjectForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="desc">Description (optional)</Label>
+              <Label htmlFor="desc" className="text-xs font-semibold tracking-wide" style={{ color: "rgba(194,251,239,0.5)" }}>DESCRIPTION (OPTIONAL)</Label>
               <Textarea
                 id="desc"
                 placeholder="Describe the project..."
@@ -368,21 +379,21 @@ export function CreateProjectForm() {
                 rows={3}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Groups */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <div style={{ background: "rgba(17,17,22,0.5)", border: "1px solid rgba(0,163,139,0.1)", padding: "24px 28px" }}>
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <CardTitle>Groups</CardTitle>
-              <CardDescription>Define sub-groups for this project</CardDescription>
+              <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "0.02em" }}>Groups</h2>
+              <p style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.35)", marginTop: 2 }}>Define sub-groups for this project</p>
             </div>
-            <Button type="button" variant="outline" size="sm" className="gap-1" onClick={addGroup}>
-              <FolderPlus className="h-3.5 w-3.5" /> Add Group
+            <Button type="button" variant="outline" size="sm" className="gap-1 text-xs font-bold tracking-wide h-8" onClick={addGroup}>
+              <FolderPlus className="h-3 w-3" /> ADD GROUP
             </Button>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div>
             <div className="flex flex-wrap gap-2">
               {groups.map((g, i) => {
                 const color = getGroupColor(i)
@@ -412,16 +423,16 @@ export function CreateProjectForm() {
                 )
               })}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Students */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Students</CardTitle>
-            <CardDescription>Add students individually or upload a class list spreadsheet</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div style={{ background: "rgba(17,17,22,0.5)", border: "1px solid rgba(0,163,139,0.1)", padding: "24px 28px" }}>
+          <div className="mb-4">
+            <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "0.02em" }}>Students</h2>
+            <p style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.35)", marginTop: 2 }}>Add students individually or upload a class list spreadsheet</p>
+          </div>
+          <div className="space-y-4">
             {/* Upload zone / Preview */}
             {sheetRows.length === 0 ? (
               <div
@@ -676,17 +687,21 @@ export function CreateProjectForm() {
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <div className="flex items-center gap-2 px-3 py-2.5" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#ef4444" }}>{error}</span>
+          </div>
+        )}
 
         <div className="flex gap-4">
-          <Button type="submit" variant="gradient" disabled={submitting}>
-            {submitting ? "Creating..." : "Create Project"}
+          <Button type="submit" variant="gradient" disabled={submitting} className="text-xs font-bold tracking-wide h-10 px-6">
+            {submitting ? "CREATING..." : "CREATE PROJECT"}
           </Button>
           <Link href="/dashboard/instructor">
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline" className="text-xs font-bold tracking-wide h-10 px-6">CANCEL</Button>
           </Link>
         </div>
       </form>

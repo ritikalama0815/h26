@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo, type CSSProperties } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Check, Circle, Clock, ListTodo, Sparkles, ChevronDown } from "lucide-react"
+import { Check, Circle, Clock, Sparkles, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TodoRow {
@@ -34,9 +34,15 @@ const STATUS_ICON = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  pending: "To do",
-  in_progress: "In progress",
-  done: "Done",
+  pending: "TO DO",
+  in_progress: "IN PROGRESS",
+  done: "DONE",
+}
+
+const STATUS_COLORS: Record<string, CSSProperties> = {
+  pending: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "rgba(194,251,239,0.35)", background: "rgba(255,255,255,0.04)", padding: "1px 6px" },
+  in_progress: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "#f59e0b", background: "rgba(245,158,11,0.08)", padding: "1px 6px" },
+  done: { fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.1em", color: "#00a38b", background: "rgba(0,163,139,0.08)", padding: "1px 6px" },
 }
 
 function sortMine(list: TodoRow[]) {
@@ -89,11 +95,7 @@ export function WorkspaceMyTodos({ groupId, userId, initialTodos, portalHref }: 
             if (t.assigned_to !== userId) return
             setTodos((prev) => {
               if (prev.some((x) => x.id === t.id)) return prev
-              return [...prev, t].sort((a, b) => {
-                const pa = (a.phase || "").localeCompare(b.phase || "")
-                if (pa !== 0) return pa
-                return a.priority - b.priority
-              })
+              return sortMine([...prev, t])
             })
           } else if (payload.eventType === "UPDATE") {
             const t = payload.new as TodoRow
@@ -106,11 +108,7 @@ export function WorkspaceMyTodos({ groupId, userId, initialTodos, portalHref }: 
               const next = exists
                 ? prev.map((x) => (x.id === t.id ? t : x))
                 : [...prev, t]
-              return next.sort((a, b) => {
-                const pa = (a.phase || "").localeCompare(b.phase || "")
-                if (pa !== 0) return pa
-                return a.priority - b.priority
-              })
+              return sortMine(next)
             })
           } else if (payload.eventType === "DELETE") {
             const old = payload.old as { id: string }
@@ -159,12 +157,9 @@ export function WorkspaceMyTodos({ groupId, userId, initialTodos, portalHref }: 
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/50 bg-muted/10 px-4 py-14 text-center">
-        <div className="rounded-3xl bg-linear-to-br from-violet-500/15 to-primary/10 p-5 ring-1 ring-violet-500/20">
-          <ListTodo className="h-10 w-10 text-violet-600 dark:text-violet-400" />
-        </div>
-        <h3 className="mt-5 text-base font-semibold tracking-tight text-foreground">You&apos;re all clear</h3>
-        <p className="mt-2 max-w-[280px] text-sm leading-relaxed text-muted-foreground">
+      <div className="flex flex-col items-center justify-center px-4 py-14 text-center" style={{ border: "1px dashed rgba(0,163,139,0.1)" }}>
+        <p style={{ fontSize: "0.92rem", fontWeight: 800, color: "#e8faf5" }}>You&apos;re all clear</p>
+        <p style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.3)", marginTop: 6, maxWidth: 260, lineHeight: 1.5 }}>
           No tasks assigned to you yet. Confirm an AI plan in chat or ask teammates to assign work.
         </p>
       </div>
@@ -172,56 +167,58 @@ export function WorkspaceMyTodos({ groupId, userId, initialTodos, portalHref }: 
   }
 
   return (
-    <div className="space-y-5">
-      {/* Progress card */}
-      <div className="rounded-2xl border border-border/40 bg-muted/15 p-4 ring-1 ring-border/20">
+    <div className="space-y-4">
+      {/* Progress */}
+      <div style={{ padding: "16px 18px", background: "rgba(0,0,0,0.12)", borderLeft: "3px solid #00a38b" }}>
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Completion
-            </p>
-            <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight text-foreground">
+            <span style={{ fontSize: "0.56rem", fontWeight: 700, letterSpacing: "0.18em", color: "rgba(194,251,239,0.3)" }}>
+              COMPLETION
+            </span>
+            <p style={{ fontSize: "1.8rem", fontWeight: 900, lineHeight: 1, color: "#e8faf5", fontVariantNumeric: "tabular-nums", marginTop: 2 }}>
               {progress}
-              <span className="text-lg font-semibold text-muted-foreground">%</span>
+              <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "rgba(194,251,239,0.35)" }}>%</span>
             </p>
           </div>
-          <div className="text-right text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">{done}</span> / {total} done
+          <div style={{ textAlign: "right" }}>
+            <span style={{ fontSize: "0.68rem", color: "rgba(194,251,239,0.5)" }}>
+              <span style={{ fontWeight: 700, color: "#e8faf5" }}>{done}</span> / {total} done
+            </span>
             {activeCount > 0 && (
-              <>
-                <br />
-                <span className="text-primary">{activeCount} active</span>
-              </>
+              <p style={{ fontSize: "0.62rem", color: "#00a38b", marginTop: 2 }}>{activeCount} active</p>
             )}
           </div>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-background/80 ring-1 ring-border/40">
+        <div className="mt-3 h-1.5 w-full overflow-hidden" style={{ background: "rgba(255,255,255,0.04)" }}>
           <div
-            className="h-full rounded-full bg-linear-to-r from-violet-500 via-primary to-primary/80 transition-[width] duration-700 ease-out"
-            style={{ width: `${progress}%` }}
+            className="h-full transition-[width] duration-700 ease-out"
+            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #00a38b, #6b9e83)" }}
           />
         </div>
       </div>
 
-      {/* Segmented filter */}
-      <div className="flex rounded-2xl bg-muted/60 p-1 ring-1 ring-border/30 dark:bg-muted/30">
+      {/* Filter tabs */}
+      <div className="flex gap-0">
         {(
           [
-            { id: "all" as const, label: "All" },
-            { id: "active" as const, label: "Active" },
-            { id: "done" as const, label: "Done" },
+            { id: "all" as const, label: "ALL" },
+            { id: "active" as const, label: "ACTIVE" },
+            { id: "done" as const, label: "DONE" },
           ]
         ).map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setFilter(tab.id)}
-            className={cn(
-              "flex-1 rounded-xl py-2 text-center text-xs font-bold transition-all",
-              filter === tab.id
-                ? "bg-background text-foreground shadow-md shadow-black/5 ring-1 ring-border/40 dark:shadow-black/40"
-                : "text-muted-foreground hover:text-foreground"
-            )}
+            className="flex-1 py-2 transition-all"
+            style={filter === tab.id ? {
+              fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em",
+              color: "#e8faf5", background: "rgba(0,163,139,0.12)",
+              boxShadow: "inset 0 -2px 0 #00a38b",
+            } : {
+              fontSize: "0.62rem", fontWeight: 600, letterSpacing: "0.1em",
+              color: "rgba(194,251,239,0.3)", background: "transparent",
+            }}
           >
             {tab.label}
           </button>
@@ -229,145 +226,121 @@ export function WorkspaceMyTodos({ groupId, userId, initialTodos, portalHref }: 
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border/40 bg-muted/10 px-4 py-10 text-center">
-          <p className="text-sm text-muted-foreground">Nothing in this view.</p>
-          <p className="mt-1 text-xs text-muted-foreground/80">Try switching the filter above.</p>
+        <div className="flex flex-col items-center justify-center py-10 text-center" style={{ border: "1px dashed rgba(255,255,255,0.06)" }}>
+          <p style={{ fontSize: "0.78rem", color: "rgba(194,251,239,0.35)" }}>Nothing in this view.</p>
+          <p style={{ fontSize: "0.65rem", color: "rgba(194,251,239,0.2)", marginTop: 4 }}>Try switching the filter above.</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {byPhase.map(({ phase, items }) => (
             <div key={phase}>
-              <div className="mb-3 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
-                <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
-                  {phase}
-                </h4>
-                <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-bold tabular-nums text-foreground/70">
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <div style={{ width: 3, height: 12, background: "#00a38b" }} />
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: "rgba(194,251,239,0.4)" }}>
+                  {phase.toUpperCase()}
+                </span>
+                <span style={{ fontSize: "0.56rem", fontWeight: 700, color: "rgba(194,251,239,0.2)", fontVariantNumeric: "tabular-nums" }}>
                   {items.length}
                 </span>
               </div>
-              <ul className="space-y-3">
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {items.map((todo) => {
                   const StatusIcon = STATUS_ICON[todo.status]
-                  const accent = todo.color || "#6366f1"
+                  const accent = todo.color || "#6b9e83"
                   const desc = todo.description || ""
                   const longDesc = desc.length > 280
                   const showFull = expandedDesc[todo.id] || !longDesc
 
                   return (
-                    <li
+                    <div
                       key={todo.id}
-                      className={cn(
-                        "relative overflow-hidden rounded-2xl border border-border/35 bg-linear-to-br from-card to-muted/20 shadow-sm transition-all",
-                        "hover:border-border/60 hover:shadow-md",
-                        todo.status === "done" && "opacity-[0.92]"
-                      )}
+                      className={cn(todo.status === "done" && "opacity-60")}
+                      style={{ borderLeft: `3px solid ${accent}`, background: "rgba(0,0,0,0.1)", padding: "12px 14px" }}
                     >
-                      <div
-                        className="absolute left-0 top-0 h-full w-1 rounded-l-2xl"
-                        style={{
-                          background: `linear-gradient(180deg, ${accent}, ${accent}99)`,
-                        }}
-                        aria-hidden
-                      />
-                      <div className="relative pl-5 pr-4 py-4 sm:pl-6">
-                        <div className="flex gap-3">
-                          <button
-                            type="button"
-                            onClick={() => toggleStatus(todo)}
-                            title={`${STATUS_LABEL[todo.status]} — click to update`}
-                            className={cn(
-                              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 transition-all active:scale-95",
-                              todo.status === "done"
-                                ? "border-emerald-400/60 bg-emerald-500/15 text-emerald-600 shadow-sm dark:text-emerald-400"
-                                : todo.status === "in_progress"
-                                  ? "border-amber-400/60 bg-amber-500/15 text-amber-600 shadow-sm dark:text-amber-400"
-                                  : "border-border/80 bg-background text-muted-foreground hover:border-primary/35 hover:text-primary"
-                            )}
-                          >
-                            <StatusIcon className="h-[18px] w-[18px]" />
-                          </button>
-                          <div className="min-w-0 flex-1 pt-0.5">
-                            <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleStatus(todo)}
+                          title={`${STATUS_LABEL[todo.status]} — click to update`}
+                          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center transition-colors"
+                          style={todo.status === "done"
+                            ? { color: "#00a38b" }
+                            : todo.status === "in_progress"
+                              ? { color: "#f59e0b" }
+                              : { color: "rgba(194,251,239,0.2)" }
+                          }
+                        >
+                          <StatusIcon className="h-4 w-4" />
+                        </button>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span style={STATUS_COLORS[todo.status]}>
+                              {STATUS_LABEL[todo.status]}
+                            </span>
+                            {todo.ai_generated && (
                               <span
-                                className={cn(
-                                  "rounded-lg border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                                  todo.status === "done"
-                                    ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
-                                    : todo.status === "in_progress"
-                                      ? "border-amber-500/25 bg-amber-500/10 text-amber-800 dark:text-amber-300"
-                                      : "border-border/50 bg-muted/40 text-muted-foreground"
-                                )}
+                                className="inline-flex items-center gap-0.5"
+                                style={{ fontSize: "0.5rem", fontWeight: 700, letterSpacing: "0.08em", color: "#c2fbef", background: "rgba(107,158,131,0.15)", padding: "1px 4px" }}
                               >
-                                {STATUS_LABEL[todo.status]}
+                                <Sparkles className="h-2 w-2" />
+                                AI
                               </span>
-                              {todo.ai_generated && (
-                                <span className="inline-flex items-center gap-1 rounded-lg bg-violet-500/12 px-2 py-0.5 text-[10px] font-bold text-violet-700 ring-1 ring-violet-500/25 dark:text-violet-300">
-                                  <Sparkles className="h-3 w-3" />
-                                  AI
-                                </span>
-                              )}
-                            </div>
-                            <p
-                              className={cn(
-                                "mt-2 text-[15px] font-semibold leading-snug tracking-tight",
-                                todo.status === "done" &&
-                                  "text-muted-foreground line-through decoration-muted-foreground/40"
-                              )}
-                            >
-                              {todo.title}
-                            </p>
-                            {desc && (
-                              <div className="mt-2">
-                                <p
-                                  className={cn(
-                                    "text-[13px] leading-relaxed text-muted-foreground whitespace-pre-line",
-                                    !showFull && "line-clamp-4"
-                                  )}
-                                >
-                                  {desc}
-                                </p>
-                                {longDesc && (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setExpandedDesc((p) => ({
-                                        ...p,
-                                        [todo.id]: !p[todo.id],
-                                      }))
-                                    }
-                                    className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-                                  >
-                                    {showFull ? "Show less" : "Read full instructions"}
-                                    <ChevronDown
-                                      className={cn(
-                                        "h-3.5 w-3.5 transition-transform",
-                                        showFull && "rotate-180"
-                                      )}
-                                    />
-                                  </button>
-                                )}
-                              </div>
                             )}
                           </div>
+                          <p
+                            style={todo.status === "done"
+                              ? { fontSize: "0.85rem", fontWeight: 600, color: "rgba(194,251,239,0.3)", textDecoration: "line-through", lineHeight: 1.4 }
+                              : { fontSize: "0.85rem", fontWeight: 600, color: "#e8faf5", lineHeight: 1.4 }
+                            }
+                          >
+                            {todo.title}
+                          </p>
+                          {desc && (
+                            <div className="mt-1.5">
+                              <p
+                                className={cn(!showFull && "line-clamp-4")}
+                                style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.35)", lineHeight: 1.6, whiteSpace: "pre-line" }}
+                              >
+                                {desc}
+                              </p>
+                              {longDesc && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setExpandedDesc((p) => ({
+                                      ...p,
+                                      [todo.id]: !p[todo.id],
+                                    }))
+                                  }
+                                  className="mt-1.5 inline-flex items-center gap-1"
+                                  style={{ fontSize: "0.65rem", fontWeight: 700, color: "#00a38b", background: "none", border: "none", cursor: "pointer" }}
+                                >
+                                  {showFull ? "Show less" : "Read full instructions"}
+                                  <ChevronDown
+                                    className={cn(
+                                      "h-3 w-3 transition-transform",
+                                      showFull && "rotate-180"
+                                    )}
+                                  />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </li>
+                    </div>
                   )
                 })}
-              </ul>
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {portalHref && (
-        <p className="border-t border-border/30 pt-4 text-center text-[11px] text-muted-foreground">
+        <p className="pt-3 text-center" style={{ borderTop: "1px solid rgba(0,163,139,0.06)", fontSize: "0.65rem", color: "rgba(194,251,239,0.25)" }}>
           Team-wide list & edits in{" "}
-          <a
-            href={portalHref}
-            className="font-bold text-primary underline-offset-4 hover:underline"
-          >
+          <a href={portalHref} style={{ fontWeight: 700, color: "#00a38b" }}>
             Portal
           </a>
         </p>

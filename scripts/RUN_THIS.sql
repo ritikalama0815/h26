@@ -1,5 +1,5 @@
 -- ============================================================================
--- FairGroup — THE ONLY SQL FILE YOU NEED TO RUN
+-- CoLab — THE ONLY SQL FILE YOU NEED TO RUN
 -- Paste this entire file into Supabase SQL Editor and click "Run"
 -- It drops everything and recreates from scratch. Safe to re-run.
 -- ============================================================================

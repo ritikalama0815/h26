@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Pin, Users, Mail, Clock } from "lucide-react"
 
 interface Props {
@@ -45,110 +43,134 @@ export default async function TeammatesPage({ params }: Props) {
     return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
   }
 
-  const colors = [
-    "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
-    "bg-rose-500", "bg-cyan-500", "bg-pink-500", "bg-teal-500",
+  const accentColors = [
+    "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b",
+    "#f43f5e", "#06b6d4", "#ec4899", "#14b8a6",
   ]
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 py-2">
+    <div className="mx-auto max-w-3xl space-y-10 py-2">
+
       {/* Members */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Team Members
-          </h2>
-          <Badge variant="secondary" className="text-[10px]">{members.length}</Badge>
+      <div>
+        <div className="flex items-center gap-3 mb-5">
+          <div style={{ width: 2, height: 18, background: "#00a38b" }} />
+          <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.28em", color: "#6b9e83" }}>
+            TEAM MEMBERS
+          </span>
+          <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "#00a38b" }}>
+            {members.length}
+          </span>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           {members.map((m, i) => {
             const isMe = m.user_id === user!.id
+            const accent = accentColors[i % accentColors.length]
             return (
-              <Card
+              <div
                 key={m.user_id}
-                className={`border-border/50 transition-all ${isMe ? "ring-1 ring-primary/20" : ""}`}
+                className="flex items-center gap-3"
+                style={{
+                  padding: "12px 14px",
+                  background: "rgba(17,17,22,0.5)",
+                  borderLeft: `3px solid ${accent}`,
+                  border: `1px solid ${isMe ? "rgba(0,163,139,0.2)" : "rgba(0,163,139,0.08)"}`,
+                  borderLeftWidth: 3,
+                  borderLeftColor: accent,
+                }}
               >
-                <CardContent className="flex items-center gap-3 py-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white text-sm font-semibold ${colors[i % colors.length]}`}>
-                    {initials(m.full_name)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-medium">
-                        {m.full_name || "Unknown"}
-                      </p>
-                      {isMe && (
-                        <Badge variant="secondary" className="text-[10px] shrink-0">You</Badge>
-                      )}
-                    </div>
-                    {m.email && (
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <Mail className="h-3 w-3 text-muted-foreground/50" />
-                        <p className="truncate text-xs text-muted-foreground">{m.email}</p>
-                      </div>
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center"
+                  style={{ background: `${accent}18`, fontSize: "0.72rem", fontWeight: 800, color: accent }}
+                >
+                  {initials(m.full_name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate" style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e8faf5" }}>
+                      {m.full_name || "Unknown"}
+                    </p>
+                    {isMe && (
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.12em", color: "#00a38b", background: "rgba(0,163,139,0.1)", padding: "1px 6px" }}>
+                        YOU
+                      </span>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                  {m.email && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <Mail className="h-2.5 w-2.5" style={{ color: "rgba(194,251,239,0.25)" }} />
+                      <p className="truncate" style={{ fontSize: "0.7rem", color: "rgba(194,251,239,0.35)" }}>{m.email}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )
           })}
         </div>
       </div>
 
       {/* Pinned Messages */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Pin className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Pinned Messages
-          </h2>
-          <Badge variant="secondary" className="text-[10px]">{pinnedMessages.length}</Badge>
+      <div>
+        <div className="flex items-center gap-3 mb-5">
+          <div style={{ width: 2, height: 18, background: "#6b9e83" }} />
+          <span style={{ fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.28em", color: "#6b9e83" }}>
+            PINNED MESSAGES
+          </span>
+          <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "#6b9e83" }}>
+            {pinnedMessages.length}
+          </span>
         </div>
 
         {pinnedMessages.length === 0 ? (
-          <Card className="border-dashed border-border/50">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50">
-                <Pin className="h-5 w-5 text-muted-foreground/40" />
-              </div>
-              <p className="mt-3 text-sm text-muted-foreground">No pinned messages yet</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">
-                Type <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-mono">@pin</code> in a chat message to pin it here
-              </p>
-            </CardContent>
-          </Card>
+          <div
+            className="flex flex-col items-center justify-center py-14 text-center"
+            style={{ border: "1px dashed rgba(0,163,139,0.12)" }}
+          >
+            <div
+              className="flex h-12 w-12 items-center justify-center mb-4"
+              style={{ background: "rgba(0,163,139,0.06)", border: "1px solid rgba(0,163,139,0.1)" }}
+            >
+              <Pin className="h-5 w-5" style={{ color: "#00a38b", opacity: 0.4 }} />
+            </div>
+            <p style={{ fontSize: "0.88rem", fontWeight: 700, color: "#e8faf5" }}>No pinned messages yet</p>
+            <p style={{ fontSize: "0.72rem", color: "rgba(194,251,239,0.3)", marginTop: 4, lineHeight: 1.5 }}>
+              Type <code style={{ fontSize: "0.68rem", fontFamily: "var(--font-mono)", background: "rgba(0,163,139,0.08)", padding: "2px 6px", color: "#00a38b" }}>@pin</code> in chat to pin a message here.
+            </p>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {pinnedMessages.map((msg) => {
               const senderName = (msg.profiles as { full_name: string | null } | null)?.full_name || "Unknown"
               const displayContent = msg.content.replace(/@pin/gi, "").trim()
               const isMe = msg.user_id === user!.id
 
               return (
-                <Card key={msg.id} className="border-border/50 border-l-4 border-l-primary/40">
-                  <CardContent className="py-3 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Pin className="h-3 w-3 text-primary/60" />
-                        <span className="text-xs font-medium">
-                          {senderName}
-                          {isMe && <span className="text-muted-foreground ml-1">(you)</span>}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Clock className="h-3 w-3" />
+                <div
+                  key={msg.id}
+                  style={{ padding: "12px 16px", borderLeft: "3px solid rgba(0,163,139,0.3)", background: "rgba(17,17,22,0.5)" }}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <Pin className="h-3 w-3" style={{ color: "#00a38b", opacity: 0.5 }} />
+                      <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#e8faf5" }}>
+                        {senderName}
+                        {isMe && <span style={{ color: "rgba(194,251,239,0.3)", marginLeft: 4 }}>(you)</span>}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-2.5 w-2.5" style={{ color: "rgba(194,251,239,0.2)" }} />
+                      <span style={{ fontSize: "0.62rem", color: "rgba(194,251,239,0.25)" }}>
                         {new Date(msg.created_at).toLocaleDateString(undefined, {
                           month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
                         })}
-                      </div>
+                      </span>
                     </div>
-                    <p className="text-sm leading-relaxed">
-                      {displayContent || <span className="text-muted-foreground italic">Pinned</span>}
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <p style={{ fontSize: "0.85rem", color: "rgba(194,251,239,0.7)", lineHeight: 1.6 }}>
+                    {displayContent || <span style={{ color: "rgba(194,251,239,0.25)", fontStyle: "italic" }}>Pinned</span>}
+                  </p>
+                </div>
               )
             })}
           </div>

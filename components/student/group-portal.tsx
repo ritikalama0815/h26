@@ -74,7 +74,7 @@ export function GroupPortal({
   return (
     <div className="flex h-full gap-3">
       {/* Resources — flexible width */}
-      <div className="flex-1 min-w-0 overflow-y-auto rounded-lg border border-border/40 bg-card/40 p-5">
+      <div className="flex-1 min-w-0 overflow-y-auto rounded-lg border border-[rgba(0,163,139,0.08)] bg-[rgba(17,17,22,0.4)] backdrop-blur-sm p-5">
         <ResourcePanel
           groupId={groupId}
           groupName={groupName}
@@ -87,7 +87,7 @@ export function GroupPortal({
 
       {/* Todo Panel — fixed width */}
       <div
-        className="shrink-0 flex flex-col rounded-lg border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden"
+        className="shrink-0 flex flex-col rounded-lg border border-[rgba(0,163,139,0.08)] bg-[rgba(17,17,22,0.5)] backdrop-blur-sm overflow-hidden"
         style={{ width: TODO_WIDTH }}
       >
         <TodoPanel
@@ -102,31 +102,33 @@ export function GroupPortal({
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="shrink-0 flex flex-col rounded-lg border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden transition-[width] duration-300 ease-in-out"
+        className="shrink-0 flex flex-col rounded-lg border border-[rgba(0,163,139,0.08)] bg-[rgba(17,17,22,0.5)] backdrop-blur-sm overflow-hidden transition-[width] duration-300 ease-in-out"
         style={{ width: showChat ? CHAT_OPEN : CHAT_CLOSED }}
       >
         {/* Header */}
-        <div className="flex h-11 items-center border-b border-border/60 px-3 shrink-0 gap-2">
+        <div className="flex h-11 items-center px-3 shrink-0 gap-2" style={{ borderBottom: "1px solid rgba(0,163,139,0.08)" }}>
           {showChat ? (
             <>
-              <MessageCircle className="h-4 w-4 text-primary shrink-0" />
-              <p className="text-sm font-semibold truncate flex-1">Group Chat</p>
-              <span className="text-[10px] text-muted-foreground shrink-0">
-                {members.length} members
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center" style={{ background: "rgba(0,163,139,0.08)", border: "1px solid rgba(0,163,139,0.15)" }}>
+                <MessageCircle className="h-3 w-3" style={{ color: "#00a38b" }} />
+              </div>
+              <span className="truncate flex-1" style={{ fontSize: "0.78rem", fontWeight: 800, color: "#e8faf5", letterSpacing: "-0.01em" }}>Chat</span>
+              <span style={{ fontSize: "0.58rem", fontWeight: 600, letterSpacing: "0.12em", color: "rgba(194,251,239,0.3)" }}>
+                {members.length}
               </span>
               <button
                 onClick={() => setChatOpen(false)}
-                className="ml-1 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+                className="ml-1 p-1 transition-colors hover:bg-white/5 shrink-0"
               >
-                <ChevronRight className="h-3.5 w-3.5" />
+                <ChevronRight className="h-3.5 w-3.5" style={{ color: "rgba(194,251,239,0.3)" }} />
               </button>
             </>
           ) : (
             <button
               onClick={() => setChatOpen(true)}
-              className="flex w-full items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+              className="flex w-full items-center justify-center transition-colors"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-4 w-4" style={{ color: "rgba(194,251,239,0.3)" }} />
             </button>
           )}
         </div>

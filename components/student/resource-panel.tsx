@@ -39,10 +39,26 @@ const typeIcons: Record<string, typeof Globe> = {
 }
 
 const typeColors: Record<string, { bg: string; text: string; border: string }> = {
-  link: { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-200/60" },
-  document: { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-200/60" },
-  repo: { bg: "bg-green-500/10", text: "text-green-600", border: "border-green-200/60" },
-  other: { bg: "bg-gray-500/10", text: "text-gray-500", border: "border-gray-200/60" },
+  link: {
+    bg: "bg-[rgba(0,163,139,0.12)]",
+    text: "text-primary",
+    border: "border-[rgba(0,163,139,0.15)]",
+  },
+  document: {
+    bg: "bg-amber-500/15",
+    text: "text-amber-300",
+    border: "border-amber-400/25",
+  },
+  repo: {
+    bg: "bg-emerald-500/15",
+    text: "text-emerald-300",
+    border: "border-emerald-400/25",
+  },
+  other: {
+    bg: "bg-white/4",
+    text: "text-[rgba(194,251,239,0.5)]",
+    border: "border-[rgba(0,163,139,0.1)]",
+  },
 }
 
 function getDomain(url: string): string {
@@ -245,8 +261,15 @@ export function ResourcePanel({
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold tracking-tight">{groupName}</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">{projectName}</p>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <div style={{ width: 20, height: 2, background: "#00a38b" }} />
+            <span style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.22em", color: "rgba(194,251,239,0.35)" }}>
+              {projectName.toUpperCase()}
+            </span>
+          </div>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: 900, letterSpacing: "-0.02em", color: "#e8faf5", lineHeight: 1 }}>
+            {groupName}
+          </h2>
         </div>
         <div className="flex gap-2 shrink-0">
           <Button
@@ -450,16 +473,16 @@ export function ResourcePanel({
       {showShareHint && (() => {
         const hintResource = resources.find((r) => r.id === showShareHint)
         return (
-          <div className="flex items-center gap-3 rounded-lg border border-blue-200/60 bg-blue-50/50 px-4 py-3 text-sm">
-            <Users className="h-4 w-4 text-blue-600 shrink-0" />
-            <p className="flex-1 text-blue-900/80">
+          <div className="flex items-center gap-3 rounded-lg border border-[rgba(0,163,139,0.15)] bg-[rgba(17,17,22,0.5)] px-4 py-3 text-sm">
+            <Users className="h-4 w-4 text-primary shrink-0" />
+            <p className="flex-1 text-[#e8faf5]/90">
               <span className="font-medium">Share with your group!</span>{" "}
               Emails will be copied, then the doc opens so you can paste them in the share dialog.
             </p>
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5 h-7 text-xs border-blue-200 text-blue-700 hover:bg-blue-100 shrink-0"
+              className="gap-1.5 h-7 text-xs border-[rgba(0,163,139,0.15)] text-[#e8faf5] hover:bg-white/4 shrink-0"
               onClick={() => {
                 copyMemberEmails(hintResource?.url)
                 setShowShareHint(null)
@@ -470,7 +493,7 @@ export function ResourcePanel({
             </Button>
             <button
               onClick={() => setShowShareHint(null)}
-              className="text-blue-400 hover:text-blue-600 transition-colors shrink-0"
+              className="text-[rgba(194,251,239,0.5)] hover:text-[#e8faf5] transition-colors shrink-0"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -534,7 +557,7 @@ export function ResourcePanel({
                     {isGoogleUrl(r.url) && (
                       <button
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); copyMemberEmails(r.url) }}
-                        className="rounded-md px-1.5 py-1 bg-card/90 text-[10px] font-medium text-blue-600 hover:bg-blue-100 transition-colors flex items-center gap-1"
+                        className="rounded-md px-1.5 py-1 bg-card/90 text-[10px] font-medium text-primary hover:bg-white/4 transition-colors flex items-center gap-1"
                         title="Copy group emails & open sharing"
                       >
                         {copiedEmails ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
