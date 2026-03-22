@@ -248,37 +248,6 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
 
         {/* Recent submissions */}
-<<<<<<< HEAD
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileUp className="h-5 w-5 text-primary" /> Recent Submissions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(!submissions || submissions.length === 0) ? (
-              <p className="text-sm text-muted-foreground">No submissions yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {submissions.map((s: Record<string, unknown>) => (
-                  <div key={s.id as string} className="rounded-lg border border-border p-3">
-                    <p className="text-sm font-medium">{s.title as string}</p>
-                    {(s.file_url as string) && (
-                      <a href={s.file_url as string} target="_blank" rel="noopener noreferrer" className="mt-1 block text-xs text-primary hover:underline">
-                        Download file
-                      </a>
-                    )}
-                    {(s.link_url as string) && (
-                      <a href={s.link_url as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                        {s.link_url as string}
-                      </a>
-                    )}
-                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{(s.profiles as Record<string, unknown>)?.full_name as string || (s.profiles as Record<string, unknown>)?.email as string}</span>
-                      <span>·</span>
-                      <Badge variant="outline" className={`text-[10px] ${(s.group_id as string) in groupIndexMap ? getGroupColor(groupIndexMap[s.group_id as string]).text : ""}`}>
-                        <span style={groupColorDot(groupIndexMap[s.group_id as string] ?? 0, 6)} className="mr-1" />
-=======
         <div style={{ background: "rgba(17,17,22,0.4)", border: "1px solid rgba(0,163,139,0.08)", padding: "24px" }}>
           <div className="flex items-center gap-2.5 mb-5">
             <div className="flex h-7 w-7 items-center justify-center" style={{ background: "rgba(0,163,139,0.08)", border: "1px solid rgba(0,163,139,0.15)" }}>
@@ -316,7 +285,6 @@ export default async function ProjectDetailPage({ params }: Props) {
                     <span className="flex items-center gap-1">
                       <span style={groupColorDot(groupIndexMap[s.group_id as string] ?? 0, 5)} />
                       <span style={{ fontSize: "0.65rem", color: "rgba(194,251,239,0.3)" }}>
->>>>>>> 255ee2fbca49833994bcc1a595c1fbd75e814fa7
                         {groupNameMap[s.group_id as string] || "—"}
                       </span>
                     </span>
