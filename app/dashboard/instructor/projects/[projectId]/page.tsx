@@ -225,6 +225,11 @@ export default async function ProjectDetailPage({ params }: Props) {
                 {submissions.map((s: Record<string, unknown>) => (
                   <div key={s.id as string} className="rounded-lg border border-border p-3">
                     <p className="text-sm font-medium">{s.title as string}</p>
+                    {(s.file_url as string) && (
+                      <a href={s.file_url as string} target="_blank" rel="noopener noreferrer" className="mt-1 block text-xs text-primary hover:underline">
+                        Download file
+                      </a>
+                    )}
                     {(s.link_url as string) && (
                       <a href={s.link_url as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                         {s.link_url as string}

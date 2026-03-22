@@ -51,7 +51,7 @@ export default function LandingPage() {
                 showCursor
                 cursorCharacter="_"
                 deletingSpeed={50}
-                variableSpeedEnabled={false}
+                variablespeedenabled={false}
                 variableSpeedMin={60}
                 variableSpeedMax={120}
                 cursorBlinkDuration={0.5}

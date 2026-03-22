@@ -1,5 +1,22 @@
 import { createClient } from "@/lib/supabase/server"
+import {
+  ensureSubmissionFilesBucket,
+  getServiceSupabase,
+  submissionBucketName,
+} from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
+
+const BUCKET = submissionBucketName()
+
+function isBucketMissing(message: string) {
+  return /bucket not found|not found|does not exist|No such bucket/i.test(message)
+}
+
+function isRlsOrPermission(message: string) {
+  return /row-level security|RLS|policy|permission denied|not authorized|403/i.test(
+    message
+  )
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,27 +72,51 @@ export async function POST(request: NextRequest) {
     const path = `${user.id}/${groupId}/${Date.now()}_${safeName}`
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const { error: upErr } = await supabase.storage
-      .from("submission-files")
-      .upload(path, buffer, {
-        contentType: file.type || "application/octet-stream",
-      })
+    const uploadOpts = {
+      contentType: file.type || "application/octet-stream",
+    }
+
+    if (getServiceSupabase()) {
+      const ensured = await ensureSubmissionFilesBucket()
+      if (!ensured.ok && ensured.error && ensured.error !== "no_service_role") {
+        console.warn("ensureSubmissionFilesBucket:", ensured.error)
+      }
+    }
+
+    let upErr = (
+      await supabase.storage.from(BUCKET).upload(path, buffer, uploadOpts)
+    ).error
+
+    if (upErr && isBucketMissing(upErr.message) && getServiceSupabase()) {
+      const ensured = await ensureSubmissionFilesBucket()
+      if (ensured.ok) {
+        upErr = (
+          await supabase.storage.from(BUCKET).upload(path, buffer, uploadOpts)
+        ).error
+      }
+    }
+
+    const admin = getServiceSupabase()
+    if (upErr && admin && (isBucketMissing(upErr.message) || isRlsOrPermission(upErr.message))) {
+      upErr = (await admin.storage.from(BUCKET).upload(path, buffer, uploadOpts))
+        .error
+    }
 
     if (upErr) {
       console.error("Storage upload:", upErr)
+      const hint =
+        !getServiceSupabase()
+          ? " Create a public bucket named submission-files in Supabase Dashboard → Storage, or add SUPABASE_SERVICE_ROLE_KEY to .env so the app can create it automatically."
+          : " Check Storage policies for bucket submission-files (see scripts/add_docs_activity_and_storage.sql)."
       return NextResponse.json(
         {
-          error:
-            upErr.message ||
-            "Upload failed. Create bucket submission-files (see scripts/add_docs_activity_and_storage.sql).",
+          error: `${upErr.message}.${hint}`,
         },
         { status: 500 }
       )
     }
 
-    const { data: pub } = supabase.storage
-      .from("submission-files")
-      .getPublicUrl(path)
+    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path)
 
     const { error: insErr } = await supabase.from("submissions").insert({
       group_id: groupId,

@@ -1,7 +1,26 @@
 import { createClient } from "@/lib/supabase/server"
+import { buildDummyReportData } from "@/lib/dummy-report"
+import type { DummyReportMember } from "@/lib/dummy-report"
 import { getGeminiModel } from "@/lib/gemini"
 import { aggregateContributions, parseGeminiJson } from "@/lib/report-helpers"
 import { NextRequest, NextResponse } from "next/server"
+
+function shouldUseDummyReport(): boolean {
+  if (
+    process.env.USE_DUMMY_REPORT === "true" ||
+    process.env.USE_DUMMY_REPORT === "1"
+  ) {
+    return true
+  }
+  if (
+    process.env.USE_DUMMY_REPORT === "false" ||
+    process.env.USE_DUMMY_REPORT === "0"
+  ) {
+    return false
+  }
+  // Default: sample data in development so instructors can preview the UI without Gemini/commits
+  return process.env.NODE_ENV === "development"
+}
 
 type GeminiReport = {
   overview: string
@@ -78,6 +97,45 @@ export async function POST(request: NextRequest) {
       `
       )
       .eq("group_id", groupId)
+
+    if (shouldUseDummyReport()) {
+      const roster: DummyReportMember[] = (memberships ?? []).map((m) => ({
+        name:
+          (m.profiles as { full_name?: string } | null)?.full_name ||
+          "Student",
+        githubUsername:
+          (m.profiles as { github_username?: string } | null)
+            ?.github_username ?? null,
+        role: m.role,
+        joinedAt: m.joined_at ?? new Date().toISOString(),
+      }))
+      const reportData = buildDummyReportData({
+        groupName: group.name,
+        projectName: project?.name ?? null,
+        description: project?.description ?? null,
+        githubRepo: group.github_repo_url ?? null,
+        createdAt: group.created_at as string,
+        roster,
+      })
+      const { error: insertDummyErr } = await supabase.from("reports").insert({
+        group_id: groupId,
+        generated_by: user.id,
+        summary: `[Demo] Contribution report — ${group.name} (${project?.name})`,
+        detailed_analysis: {
+          kind: "full_report",
+          isDummy: true,
+          payload: reportData,
+          generatedAt: reportData.generatedAt,
+        },
+      })
+      if (insertDummyErr) {
+        console.error("Report insert (dummy):", insertDummyErr)
+      }
+      return NextResponse.json({
+        success: true,
+        report: reportData,
+      })
+    }
 
     const { data: scores } = await supabase
       .from("contribution_scores")
