@@ -16,9 +16,14 @@ interface Props {
 }
 
 export default async function InstructorGroupPage({ params }: Props) {
-  const { projectId, groupId } = await params
+  const { projectId: rawProjectId, groupId: rawGroupId } = await params
+  const projectId = rawProjectId.trim()
+  const groupId = rawGroupId.trim()
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/auth/login")
+
   const profile = await getCurrentProfile()
   if (profile?.role !== "instructor") redirect("/dashboard/student")
 
@@ -26,14 +31,16 @@ export default async function InstructorGroupPage({ params }: Props) {
     .from("projects")
     .select("*")
     .eq("id", projectId)
-    .single()
-  if (!project || project.created_by !== user?.id) notFound()
+    .eq("created_by", user.id)
+    .maybeSingle()
+  if (!project) notFound()
 
   const { data: group } = await supabase
     .from("project_groups")
     .select("*")
     .eq("id", groupId)
-    .single()
+    .eq("project_id", projectId)
+    .maybeSingle()
   if (!group) notFound()
 
   const { data: members } = await supabase
