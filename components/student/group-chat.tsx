@@ -4,9 +4,11 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, Pin, Sparkles, Loader2 } from "lucide-react"
+import { Send, Pin, Sparkles, Loader2, MessageCircleQuestion } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { parseInstructorAnswer } from "@/lib/chat-formats"
 import { AIPlanCard } from "./ai-plan-card"
+import { InstructorReplyCard } from "./instructor-reply-card"
 
 interface Message {
   id: string
@@ -18,12 +20,25 @@ interface Message {
 
 interface GroupChatProps {
   groupId: string
+  /** Project owner (instructor) user id — validates @instructor-answer:: messages */
+  projectOwnerId: string
   userId: string
   initialMessages: Message[]
   members: Array<{ userId: string; fullName: string }>
 }
 
 const AI_PLAN_PREFIX = "@ai-plan::"
+
+/**
+ * Student → instructor question: message must start with @question (case-insensitive),
+ * not @questionnaire etc. Body is optional after whitespace; empty body = invalid (caller alerts).
+ */
+function parseQuestionBody(text: string): { isQuestion: boolean; body: string } {
+  const trimmed = text.trim()
+  const m = trimmed.match(/^@question(?:\s+(.+))?$/i)
+  if (!m) return { isQuestion: false, body: "" }
+  return { isQuestion: true, body: (m[1] ?? "").trim() }
+}
 
 function parseAIPlan(content: string) {
   if (!content.startsWith(AI_PLAN_PREFIX)) return null
@@ -34,7 +49,13 @@ function parseAIPlan(content: string) {
   }
 }
 
-export function GroupChat({ groupId, userId, initialMessages, members }: GroupChatProps) {
+export function GroupChat({
+  groupId,
+  projectOwnerId,
+  userId,
+  initialMessages,
+  members,
+}: GroupChatProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
@@ -73,13 +94,26 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
         },
         (payload) => {
           const newMsg = payload.new as Message
-          newMsg.profiles = {
-            full_name: memberMap.current[newMsg.user_id] || null,
-          }
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev
-            return [...prev, newMsg]
-          })
+          void (async () => {
+            let fullName = memberMap.current[newMsg.user_id] || null
+            if (!fullName && newMsg.user_id) {
+              const { data } = await supabase
+                .from("profiles")
+                .select("full_name")
+                .eq("id", newMsg.user_id)
+                .maybeSingle()
+              fullName = data?.full_name ?? null
+            }
+            const parsed = parseInstructorAnswer(newMsg.content)
+            if (parsed?.instructorName) {
+              fullName = parsed.instructorName
+            }
+            newMsg.profiles = { full_name: fullName }
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMsg.id)) return prev
+              return [...prev, newMsg]
+            })
+          })()
         }
       )
       .subscribe()
@@ -146,11 +180,20 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
   const sendMessage = async () => {
     const text = input.trim()
     if (!text) return
-    setSending(true)
-    setInput("")
 
     const isAI = /^@ai\s/i.test(text)
     const aiPrompt = isAI ? text.replace(/^@ai\s+/i, "").trim() : ""
+    const { isQuestion, body: questionBody } = parseQuestionBody(text)
+
+    if (isQuestion && !isAI) {
+      if (!questionBody) {
+        alert("Add your question after @question — e.g. @question When is the deadline?")
+        return
+      }
+    }
+
+    setSending(true)
+    setInput("")
 
     try {
       if (isAI) {
@@ -169,6 +212,24 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
         if (error) {
           console.error("[Chat] Send failed:", error.message)
           setInput(text)
+          return
+        }
+        if (isQuestion) {
+          const res = await fetch("/api/questions/from-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              groupId,
+              content: questionBody,
+            }),
+          })
+          const qData = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            console.error("[Chat] Question insert failed:", qData)
+            alert(
+              `Message was sent, but the instructor question could not be saved: ${qData.error || res.statusText}${qData.hint ? `\n\n${qData.hint}` : ""}`
+            )
+          }
         }
       }
     } catch {
@@ -215,11 +276,45 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
             )
           }
 
+          const instructorReply = parseInstructorAnswer(msg.content)
+          if (instructorReply) {
+            if (msg.user_id !== projectOwnerId) {
+              return (
+                <div key={msg.id} className="flex flex-col items-start">
+                  <span className="mb-0.5 text-[10px] text-muted-foreground">
+                    {name} · {formatTime(msg.created_at)}
+                  </span>
+                  <div className="max-w-[85%] rounded-xl border border-dashed border-border/60 px-3 py-2 text-xs text-muted-foreground">
+                    This message couldn&apos;t be verified as an instructor reply.
+                  </div>
+                </div>
+              )
+            }
+            const displayName =
+              instructorReply.instructorName ||
+              msg.profiles?.full_name ||
+              memberMap.current[msg.user_id] ||
+              "Instructor"
+            return (
+              <div key={msg.id} className="flex flex-col items-start">
+                <span className="mb-1 text-[10px] text-muted-foreground">
+                  {displayName} · {formatTime(msg.created_at)}
+                </span>
+                <InstructorReplyCard payload={instructorReply} />
+              </div>
+            )
+          }
+
           const isAIRequest = /^@ai\s/i.test(msg.content)
           const isPinned = msg.content.includes("@pin")
-          const displayContent = isPinned
-            ? msg.content.replace(/@pin/gi, "").trim()
-            : msg.content
+          const qParsed = parseQuestionBody(msg.content)
+          const isQuestionMsg = qParsed.isQuestion
+          let displayContent = msg.content
+          if (isPinned) {
+            displayContent = msg.content.replace(/@pin/gi, "").trim()
+          } else if (isQuestionMsg) {
+            displayContent = qParsed.body || "(question)"
+          }
 
           return (
             <div
@@ -236,6 +331,8 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
                 className={cn(
                   "max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed",
                   isPinned && "border border-primary/30",
+                  isQuestionMsg &&
+                    "border border-amber-300/50 bg-amber-50 dark:bg-amber-950/25",
                   isAIRequest &&
                     "border border-violet-300/50 bg-violet-50 dark:bg-violet-950/30",
                   isSystem
@@ -262,6 +359,12 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
                   <div className="flex items-center gap-1 text-[10px] font-medium mb-1 text-violet-600 dark:text-violet-400">
                     <Sparkles className="h-2.5 w-2.5" />
                     AI Request
+                  </div>
+                )}
+                {isQuestionMsg && (
+                  <div className="flex items-center gap-1 text-[10px] font-medium mb-1 text-amber-700 dark:text-amber-400">
+                    <MessageCircleQuestion className="h-2.5 w-2.5" />
+                    Question to instructor
                   </div>
                 )}
                 {displayContent || "📌"}
@@ -298,7 +401,7 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
           className="flex gap-2"
         >
           <Input
-            placeholder="Type a message... (@AI to plan)"
+            placeholder="Message… (@AI plan, @question for instructor)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="flex-1 h-9 text-sm"
@@ -312,8 +415,10 @@ export function GroupChat({ groupId, userId, initialMessages, members }: GroupCh
             <Send className="h-3.5 w-3.5" />
           </Button>
         </form>
-        <p className="text-[9px] text-muted-foreground/50 mt-1 px-1">
-          Type <span className="font-mono bg-muted px-0.5 rounded">@AI your request</span> to generate a project plan
+        <p className="text-[9px] text-muted-foreground/50 mt-1 px-1 leading-relaxed">
+          <span className="font-mono bg-muted px-0.5 rounded">@AI …</span> project plan ·{" "}
+          <span className="font-mono bg-muted px-0.5 rounded">@question your text</span>{" "}
+          (space after @question — goes to instructor Questions)
         </p>
       </div>
     </div>

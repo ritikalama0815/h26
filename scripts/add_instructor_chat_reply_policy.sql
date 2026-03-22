@@ -1,0 +1,2 @@
+-- Deprecated: use scripts/fix_messages_insert_rls.sql instead (merged INSERT policy).
+-- Kept for reference — do not run alongside fix_messages_insert_rls.sql.

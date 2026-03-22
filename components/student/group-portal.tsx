@@ -43,6 +43,8 @@ interface GroupPortalProps {
   groupId: string
   groupName: string
   projectName: string
+  /** Project creator — used to verify instructor reply messages in chat */
+  projectOwnerId: string
   userId: string
   initialResources: Resource[]
   initialMessages: Message[]
@@ -58,6 +60,7 @@ export function GroupPortal({
   groupId,
   groupName,
   projectName,
+  projectOwnerId,
   userId,
   initialResources,
   initialMessages,
@@ -132,6 +135,7 @@ export function GroupPortal({
           <div className="flex-1 min-h-0">
             <GroupChat
               groupId={groupId}
+              projectOwnerId={projectOwnerId}
               userId={userId}
               initialMessages={initialMessages}
               members={members}

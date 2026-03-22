@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { getGroupColor, groupColorDot } from "@/lib/group-colors"
+import { InstructorQuestionCard } from "@/components/instructor/instructor-question-card"
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -183,16 +184,25 @@ export default async function ProjectDetailPage({ params }: Props) {
             ) : (
               <div className="space-y-3">
                 {questions.map((q: Record<string, unknown>) => (
-                  <div key={q.id as string} className="rounded-lg border border-border p-3">
-                    <p className="text-sm">{q.content as string}</p>
-                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{(q.profiles as Record<string, unknown>)?.full_name as string || (q.profiles as Record<string, unknown>)?.email as string}</span>
-                      <span>·</span>
+                  <div key={q.id as string}>
+                    <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
                       <Badge variant="outline" className={`text-[10px] ${(q.group_id as string) in groupIndexMap ? getGroupColor(groupIndexMap[q.group_id as string]).text : ""}`}>
                         <span style={groupColorDot(groupIndexMap[q.group_id as string] ?? 0, 6)} className="mr-1" />
                         {groupNameMap[q.group_id as string] || "—"}
                       </Badge>
                     </div>
+                    <InstructorQuestionCard
+                      projectId={projectId}
+                      question={{
+                        id: q.id as string,
+                        group_id: q.group_id as string,
+                        content: q.content as string,
+                        answer: (q.answer as string | null) ?? null,
+                        resolved: (q.resolved as boolean | null) ?? null,
+                        created_at: q.created_at as string,
+                        profiles: q.profiles as { full_name: string | null; email: string | null } | null,
+                      }}
+                    />
                   </div>
                 ))}
               </div>

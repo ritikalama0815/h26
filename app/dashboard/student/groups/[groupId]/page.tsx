@@ -57,6 +57,7 @@ export default async function StudentGroupPortalPage({ params }: Props) {
       groupId={groupId}
       groupName={group.name}
       projectName={project.name}
+      projectOwnerId={project.created_by}
       userId={user!.id}
       initialResources={resources || []}
       initialMessages={messages || []}

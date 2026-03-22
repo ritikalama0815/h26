@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { getGroupColor } from "@/lib/group-colors"
+import { InstructorQuestionCard } from "@/components/instructor/instructor-question-card"
 
 interface Props {
   params: Promise<{ projectId: string; groupId: string }>
@@ -144,12 +145,14 @@ export default async function InstructorGroupPage({ params }: Props) {
           </CardContent>
         </Card>
 
-        {/* Chat — private to students */}
+        {/* Chat — private to students; @question posts appear below */}
         <Card className="border-border/60 bg-card/80">
           <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-muted-foreground" /> Group Chat</CardTitle></CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Group chat is private to students. Messages are not visible to instructors.
+              Group chat is private to instructors, but when students use{" "}
+              <code className="rounded bg-muted px-1 py-0.5 text-[11px] font-mono">@question</code>{" "}
+              in chat, the question is copied here for you to answer.
             </p>
           </CardContent>
         </Card>
@@ -175,22 +178,35 @@ export default async function InstructorGroupPage({ params }: Props) {
           </CardContent>
         </Card>
 
-        {/* Questions */}
+        {/* Questions (from @question in student chat + any other entries) */}
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquareWarning className="h-5 w-5 text-primary" /> Questions</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquareWarning className="h-5 w-5 text-primary" /> Questions
+            </CardTitle>
+            <p className="text-xs text-muted-foreground font-normal">
+              Students send these with <code className="rounded bg-muted px-1 font-mono">@question …</code> in group chat.
+            </p>
+          </CardHeader>
           <CardContent>
             {(!questions || questions.length === 0) ? (
               <p className="text-sm text-muted-foreground">No questions yet.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {questions.map((q) => (
-                  <div key={q.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm">{q.content}</p>
-                      {q.resolved && <Badge variant="secondary" className="text-[10px]">Resolved</Badge>}
-                    </div>
-                    {q.answer && <p className="mt-1 rounded bg-primary/5 p-2 text-sm text-primary">{q.answer}</p>}
-                  </div>
+                  <InstructorQuestionCard
+                    key={q.id}
+                    projectId={projectId}
+                    question={{
+                      id: q.id,
+                      group_id: q.group_id,
+                      content: q.content,
+                      answer: q.answer,
+                      resolved: q.resolved,
+                      created_at: q.created_at,
+                      profiles: q.profiles as { full_name: string | null; email: string | null } | null,
+                    }}
+                  />
                 ))}
               </div>
             )}

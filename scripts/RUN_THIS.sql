@@ -26,6 +26,7 @@ DROP FUNCTION IF EXISTS public.is_project_owner(uuid) CASCADE;
 DROP FUNCTION IF EXISTS public.is_project_member(uuid) CASCADE;
 DROP FUNCTION IF EXISTS public.is_group_member(uuid) CASCADE;
 DROP FUNCTION IF EXISTS public.is_group_project_owner(uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.get_project_instructor_email(uuid) CASCADE;
 
 -- ============================================================================
 -- PROFILES
@@ -257,6 +258,31 @@ GRANT EXECUTE ON FUNCTION public.is_project_member(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.is_group_member(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.is_group_project_owner(uuid) TO authenticated;
 
+-- Email notifications: group members can resolve the instructor's email (project owner only)
+CREATE OR REPLACE FUNCTION public.get_project_instructor_email(p_group_id uuid)
+RETURNS text
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_group_member(p_group_id) THEN
+    RETURN NULL;
+  END IF;
+  RETURN (
+    SELECT pr.email
+    FROM public.project_groups pg
+    JOIN public.projects p ON p.id = pg.project_id
+    JOIN public.profiles pr ON pr.id = p.created_by
+    WHERE pg.id = p_group_id
+    LIMIT 1
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_project_instructor_email(uuid) TO authenticated;
+
 -- ── Profiles ──
 
 CREATE POLICY "Users can view own profile" ON public.profiles
@@ -337,10 +363,20 @@ CREATE POLICY "Group members can view messages" ON public.messages
   FOR SELECT USING (
     public.is_group_member(group_id)
   );
-CREATE POLICY "Group members can send messages" ON public.messages
+-- Single INSERT policy: students (group members) OR project owner (instructor chat replies)
+CREATE POLICY "Group members and project owner can send messages" ON public.messages
   FOR INSERT WITH CHECK (
     auth.uid() = user_id
-    AND public.is_group_member(group_id)
+    AND (
+      public.is_group_member(group_id)
+      OR EXISTS (
+        SELECT 1
+        FROM public.project_groups pg
+        JOIN public.projects p ON p.id = pg.project_id
+        WHERE pg.id = group_id
+          AND p.created_by = auth.uid()
+      )
+    )
   );
 
 -- ── Resources ──
