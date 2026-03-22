@@ -1,6 +1,6 @@
 # CoLab for **TruHacks 2026**
 
-CoLab is a web app for **fairer group-project grading**. Instructors create projects and groups; students collaborate on GitHub repos, shared Google Docs, and in-app chat. The app tracks contributions (commits, self-reported doc work), and **instructors can generate contribution reports** with charts and **Gemini**-written overviews and suggested grades because we are all tired of people who contribute less but get same grades as us.
+CoLab is a web app for fairer group-project grading. Instructors create projects and groups; students collaborate on GitHub repos, shared Google Docs, and in-app chat. The app tracks contributions (commits, self-reported doc work), and **instructors can generate contribution reports** with charts and **Gemini**-written overviews and suggested grades because we are all tired of people who contribute less but get same grades as us.
 
 ## Tech stack
 
@@ -8,7 +8,7 @@ CoLab is a web app for **fairer group-project grading**. Instructors create proj
 |--------|--------|
 | Framework | **Next.js** (App Router), **React**, **TypeScript** |
 | Styling | **Tailwind CSS**, **Radix UI**, **Framer Motion** |
-| Auth & data | **Supabase** (Auth, Postgres, Row Level Security, Storage) |
+| Auth & database | **Supabase** (Auth, Postgres, Row Level Security, Storage) |
 | AI | **Google Gemini** |
 | Charts | **Recharts** |
 
@@ -26,8 +26,8 @@ CoLab is a web app for **fairer group-project grading**. Instructors create proj
 git clone https://github.com/ritikalama0815/h26
 cd h26
 npm install
-**May need gsasp, shadcn, lucide-react**
 ```
+*You may also need to install gsap, shadcn, lucide-react along with dependencies*
 
 ### 2. Environment variables
 
@@ -77,8 +77,8 @@ npm start
 
 ## Roles and main flows
 
-- **Instructor**: Able to create projects and groups; view submissions, answer questions, and **Generate report** (contribution breakdown, charts, Gemini overview + suggested grades).
-- **Student**: Groups, workspace (resources, **submit work** with link and/or **file upload**, **log Docs/Slides** activity), teammates, chat with AI and team mates, and ask questions to prodessor.
+- **Instructor**: Able to create projects and groups; view submissions, answer questions, and Generate report (contribution breakdown, charts, Gemini overview + suggested grades).
+- **Student**: Groups, workspace (resources, submit work with link and/or file upload, log Docs/Slides activity), teammates, chat with AI and teammates, and ask questions to professor.
 
 ## Reports
 
@@ -87,21 +87,24 @@ npm start
 
 GitHub sync runs **server-side** (`/api/github/sync`) against the configured repo URL. **Google Docs** metrics in reports use **self-reported** entries from students unless you integrate a Google API separately.
 
-## Scripts
+## Most used scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start dev server |
 | `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
 
-## Project layout (high level)
+## Project layout 
 
 ```
-app/                 # Next.js App Router (pages, layouts, API routes)
-components/          # UI (dashboard, student, instructor, landing, etc.)
-lib/                   # Supabase clients, Gemini helpers, report helpers
-scripts/               # SQL migrations (RUN_THIS.sql, add_docs_activity_and_storage.sql)
+app/                 
+components/
+hooks/
+image/       
+lib/
+public/              
+scripts/
+styles/
+test/             
 ```
-
+Access it at -> co-lab-ud5i.vercel.app
