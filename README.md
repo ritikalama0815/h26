@@ -88,16 +88,14 @@ npm start
 
 GitHub sync runs **server-side** (`/api/github/sync`) against the configured repo URL. **Google Docs** metrics in reports use **self-reported** entries from students unless you integrate a Google API separately.
 
-## Scripts
+## Most used scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start dev server |
 | `npm run build` | Production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
 
-## Project layout (high level)
+## Project layout 
 
 ```
 app/                 
@@ -110,4 +108,4 @@ scripts/
 styles/
 test/             
 ```
-
+Access it at -> co-lab-ud5i.vercel.app
