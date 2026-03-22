@@ -9,7 +9,7 @@ CoLab is a web app for fairer group-project grading. Instructors create projects
 |--------|--------|
 | Framework | **Next.js** (App Router), **React**, **TypeScript** |
 | Styling | **Tailwind CSS**, **Radix UI**, **Framer Motion** |
-| Auth & data | **Supabase** (Auth, Postgres, Row Level Security, Storage) |
+| Auth & database | **Supabase** (Auth, Postgres, Row Level Security, Storage) |
 | AI | **Google Gemini** |
 | Charts | **Recharts** |
 
@@ -27,8 +27,8 @@ CoLab is a web app for fairer group-project grading. Instructors create projects
 git clone https://github.com/ritikalama0815/h26
 cd h26
 npm install
-**May need gsasp, shadcn, lucide-react**
 ```
+*You may also need to install gsap, shadcn, lucide-react along with dependencies*
 
 ### 2. Environment variables
 
