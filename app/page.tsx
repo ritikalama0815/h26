@@ -53,7 +53,7 @@ const stats = [
 ]
 
 const features = [
-  { icon: ListChecks, title: "Task Division", desc: "Break projects into tasks and assign them — track progress as work gets done.", color: "#00a38b" },
+  { icon: ListChecks, title: "Task Division", desc: "Break projects into tasks and assign them to members", color: "#00a38b" },
   { icon: GitBranch, title: "GitHub Sync", desc: "Connect your repo and see commits and contributions per team member.", color: "#6b9e83" },
   { icon: Zap, title: "AI Planning", desc: "Type @AI in chat and get a full project plan with task breakdowns instantly.", color: "#c2fbef" },
   { icon: MessageSquare, title: "Team Chat", desc: "Built-in group chat with @pin, @question, and real-time messaging.", color: "#00a38b" },
@@ -101,14 +101,14 @@ export default function LandingPage() {
         </Link>
         <nav className="flex items-center gap-3">
           <Link href="/auth/login" className="text-sm font-medium text-white/60 hover:text-white transition-colors px-4 py-2">
-            Log in
+            LOG IN
           </Link>
           <Link
             href="/auth/get-started"
             className="text-sm font-bold text-white px-5 py-2.5 transition-all hover:brightness-110"
             style={{ background: "#00a38b", letterSpacing: "0.04em" }}
           >
-            GET STARTED
+            SIGN UP
           </Link>
         </nav>
       </header>
@@ -129,7 +129,7 @@ export default function LandingPage() {
 
               <div className="mb-8">
                 <TypingText
-                  lines={["GROUP", "WORK", "MADE EASY"]}
+                  lines={["GROUP WORK", "MADE EASY"]}
                   typingSpeed={90}
                   lineDelay={250}
                   outlineLines={[2]}
@@ -141,7 +141,7 @@ export default function LandingPage() {
                   style={{
                     fontSize: "clamp(4.5rem, 12vw, 8rem)",
                     fontWeight: 900,
-                    lineHeight: 0.9,
+                    lineHeight: 1.05,
                     letterSpacing: "-0.03em",
                   }}
                 />
@@ -152,7 +152,7 @@ export default function LandingPage() {
                 transition={{ delay: 1.8, duration: 0.6 }}
                 style={{ fontSize: "1.05rem", lineHeight: 1.75, color: "rgba(194,251,239,0.55)", maxWidth: 440, marginBottom: 32 }}
               >
-                CoLab is the hub for all your teamwork — divide tasks, chat in real time, track progress, and let AI handle the planning.
+                CoLab is the center for all your teamwork; divide tasks, chat in real time, track progress, and let AI handle the planning.
               </motion.p>
 
               <motion.div
@@ -160,28 +160,6 @@ export default function LandingPage() {
                 transition={{ delay: 0.58, duration: 0.5 }}
                 className="flex flex-wrap gap-4"
               >
-                <Link
-                  href="/auth/get-started"
-                  className="group inline-flex items-center gap-2 text-white transition-all duration-200"
-                  style={{
-                    fontSize: "0.92rem", fontWeight: 800, letterSpacing: "0.12em", padding: "13px 28px",
-                    background: "linear-gradient(135deg, #00a38b, #6b9e83)",
-                    boxShadow: "0 0 28px rgba(0,163,139,0.3)",
-                  }}
-                >
-                  GET STARTED FREE
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-                <Link
-                  href="#features"
-                  className="text-white/50 hover:text-white transition-colors"
-                  style={{
-                    fontSize: "0.92rem", fontWeight: 700, letterSpacing: "0.12em", padding: "13px 28px",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                  }}
-                >
-                  SEE FEATURES
-                </Link>
               </motion.div>
             </motion.div>
 
@@ -281,8 +259,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-10 pb-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ marginBottom: 24 }}>
             <div style={{ position: "relative" }}>
-              <h2 className="text-white" style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 900, lineHeight: 1, letterSpacing: "-0.01em", paddingBottom: 10 }}>
-                Everything Your Team Needs
+              <h2 className="text-white" style={{ fontSize: "clamp(2rem, 3vw, 3.2rem)", fontWeight: 800, lineHeight: 1, letterSpacing: "-0.01em", paddingBottom: 10 }}>
+                Everything You and Your Team Needs
               </h2>
               <div style={{ position: "absolute", bottom: 0, left: 0, width: "40%", height: 3, background: "linear-gradient(90deg, #00a38b, transparent)" }} />
             </div>
@@ -324,7 +302,7 @@ export default function LandingPage() {
               </span>
             </h2>
             <p style={{ fontSize: "1rem", color: "rgba(194,251,239,0.5)", lineHeight: 1.7, marginBottom: 36 }}>
-              Stop dreading group projects. CoLab gives your team one place to split tasks, talk in real time, and ship work that everyone can be proud of.
+              No need to dread group projects now. CoLab gives your team one place to split tasks, talk in real time, and ship fair work that everyone can be proud of.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -332,7 +310,7 @@ export default function LandingPage() {
                 className="text-white inline-flex items-center gap-2"
                 style={{ fontSize: "0.9rem", fontWeight: 800, letterSpacing: "0.12em", padding: "13px 30px", background: "linear-gradient(135deg, #00a38b, #6b9e83)", boxShadow: "0 0 30px rgba(0,163,139,0.3)" }}
               >
-                SIGN UP FREE →
+                SIGN UP →
               </Link>
               <Link
                 href="/auth/login"
