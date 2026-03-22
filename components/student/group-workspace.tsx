@@ -1,8 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { ResourceThumbnailGrid, type ResourceThumbnailItem } from "./resource-thumbnail-grid"
 import { WorkspaceMyTodos } from "./workspace-my-todos"
-import { Briefcase, Link2, ListTodo } from "lucide-react"
+import { ArrowUpRight, Layers, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface TodoRow {
   id: string
@@ -40,89 +42,109 @@ export function GroupWorkspace({
   memberEmails,
 }: GroupWorkspaceProps) {
   const portalHref = `/dashboard/student/groups/${groupId}`
+  const myCount = todos.filter((t) => t.assigned_to === userId).length
 
   return (
-    <div className="mx-auto flex h-full min-h-0 max-w-6xl flex-col gap-8 pb-2">
-      {/* Page intro */}
-      <header className="shrink-0 overflow-hidden rounded-2xl border border-border/40 bg-card/60 shadow-sm ring-1 ring-border/20">
-        <div className="bg-linear-to-br from-primary/7 via-transparent to-violet-500/6 px-5 py-6 sm:px-6 sm:py-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary shadow-inner ring-1 ring-primary/20">
-                <Briefcase className="h-6 w-6" />
-              </div>
-              <div className="min-w-0 space-y-1">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Workspace
-                </p>
-                <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                  {groupName}
-                </h1>
-                <p className="text-sm text-muted-foreground">{projectName}</p>
-              </div>
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-6 pb-4">
+      {/* Ambient background */}
+      <div
+        className="pointer-events-none absolute -inset-x-8 -top-4 h-72 opacity-40 blur-3xl"
+        aria-hidden
+      >
+        <div className="absolute left-1/4 top-0 h-48 w-48 rounded-full bg-primary/20" />
+        <div className="absolute right-1/4 top-8 h-56 w-56 rounded-full bg-violet-500/15" />
+      </div>
+
+      {/* Hero strip */}
+      <header className="relative z-10 overflow-hidden rounded-3xl border border-border/50 bg-card/80 shadow-lg shadow-black/5 ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/60 dark:shadow-black/20">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/8 via-transparent to-violet-500/7" />
+        <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-[100px] bg-linear-to-bl from-primary/5 to-transparent" />
+        <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 text-primary shadow-inner ring-1 ring-primary/20">
+              <Layers className="h-7 w-7" />
             </div>
-            <p className="max-w-sm text-xs leading-relaxed text-muted-foreground sm:text-right">
-              Your links and your assignments in one place. Add or edit group resources in{" "}
-              <a
-                href={portalHref}
-                className="font-semibold text-foreground underline-offset-4 hover:underline"
-              >
-                Portal
-              </a>
-              .
+            <div className="min-w-0 space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-background/60 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-border/50">
+                  Workspace
+                </span>
+                {myCount > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-violet-500/20 dark:text-violet-300">
+                    <Sparkles className="h-3 w-3" />
+                    {myCount} assigned to you
+                  </span>
+                )}
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                {groupName}
+              </h1>
+              <p className="text-sm text-muted-foreground">{projectName}</p>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-col items-stretch gap-3 sm:items-end">
+            <p className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">
+              Links and your personal tasks — edit the full group board in Portal.
             </p>
+            <Button
+              asChild
+              size="sm"
+              className="h-10 gap-2 rounded-xl px-5 font-semibold shadow-md shadow-primary/15"
+            >
+              <Link href={portalHref}>
+                Open group portal
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* Main grid: resources + tasks */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8">
-        {/* Resources — wider */}
-        <section className="flex min-h-0 flex-col gap-4 lg:col-span-7">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                <Link2 className="h-5 w-5" />
-              </div>
+      {/* Bento-style main */}
+      <div className="relative z-10 grid min-h-0 flex-1 grid-cols-1 gap-5 lg:grid-cols-12 lg:gap-6">
+        {/* Resources — spans 7 */}
+        <section className="flex min-h-0 flex-col lg:col-span-7">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border/40 bg-card/50 shadow-xl shadow-black/3 ring-1 ring-border/20 backdrop-blur-sm dark:bg-card/40 dark:shadow-black/30">
+            <div className="flex items-center justify-between border-b border-border/40 bg-muted/20 px-5 py-4 sm:px-6">
               <div>
-                <h2 className="text-base font-semibold tracking-tight">Shared resources</h2>
-                <p className="text-[12px] text-muted-foreground">
+                <h2 className="text-sm font-bold tracking-tight text-foreground">
+                  Shared resources
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {resources.length === 0
-                    ? "No links yet"
-                    : `${resources.length} link${resources.length === 1 ? "" : "s"} · opens in a new tab`}
+                    ? "No links yet — add some from Portal"
+                    : `${resources.length} link${resources.length === 1 ? "" : "s"} · favicon preview`}
                 </p>
               </div>
             </div>
-          </div>
-          <div className="min-h-0 flex-1 rounded-2xl border border-border/40 bg-card/30 p-4 shadow-xs ring-1 ring-border/25 sm:p-5">
-            <ResourceThumbnailGrid
-              resources={resources}
-              memberEmails={memberEmails}
-              portalHref={portalHref}
-            />
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
+              <ResourceThumbnailGrid
+                resources={resources}
+                memberEmails={memberEmails}
+                portalHref={portalHref}
+              />
+            </div>
           </div>
         </section>
 
-        {/* My tasks */}
-        <section className="flex min-h-0 flex-col gap-4 lg:col-span-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
-              <ListTodo className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold tracking-tight">My tasks</h2>
-              <p className="text-[12px] text-muted-foreground">
-                Assigned to you in this group
+        {/* Tasks — spans 5, sticky feel on large screens */}
+        <section className="flex min-h-[min(70vh,640px)] flex-col lg:col-span-5 lg:min-h-0">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl border border-border/40 bg-linear-to-b from-card/90 to-card/50 shadow-xl shadow-black/3 ring-1 ring-violet-500/10 backdrop-blur-sm dark:from-card/70 dark:to-card/30 dark:shadow-black/30">
+            <div className="relative border-b border-border/40 bg-linear-to-r from-violet-500/[0.07] to-transparent px-5 py-4 sm:px-6">
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-violet-500/50 via-primary/40 to-transparent" />
+              <h2 className="text-sm font-bold tracking-tight text-foreground">My tasks</h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Your assignments in this group only
               </p>
             </div>
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/30 shadow-xs ring-1 ring-border/25">
-            <WorkspaceMyTodos
-              groupId={groupId}
-              userId={userId}
-              initialTodos={todos}
-              portalHref={portalHref}
-            />
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">
+              <WorkspaceMyTodos
+                groupId={groupId}
+                userId={userId}
+                initialTodos={todos}
+                portalHref={portalHref}
+              />
+            </div>
           </div>
         </section>
       </div>

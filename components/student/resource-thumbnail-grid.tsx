@@ -32,11 +32,11 @@ const typeIcons: Record<string, typeof Globe> = {
   other: Link2,
 }
 
-const typeColors: Record<string, { bg: string; text: string; border: string }> = {
-  link: { bg: "bg-blue-500/10", text: "text-blue-600", border: "border-blue-200/50 dark:border-blue-500/20" },
-  document: { bg: "bg-amber-500/10", text: "text-amber-600", border: "border-amber-200/50 dark:border-amber-500/20" },
-  repo: { bg: "bg-emerald-500/10", text: "text-emerald-600", border: "border-emerald-200/50 dark:border-emerald-500/20" },
-  other: { bg: "bg-muted", text: "text-muted-foreground", border: "border-border/60" },
+const typeColors: Record<string, { bg: string; text: string; ring: string }> = {
+  link: { bg: "from-blue-500/20 to-blue-600/5", text: "text-blue-600", ring: "ring-blue-500/15" },
+  document: { bg: "from-amber-500/20 to-amber-600/5", text: "text-amber-600", ring: "ring-amber-500/15" },
+  repo: { bg: "from-emerald-500/20 to-emerald-600/5", text: "text-emerald-600", ring: "ring-emerald-500/15" },
+  other: { bg: "from-muted to-muted/50", text: "text-muted-foreground", ring: "ring-border/30" },
 }
 
 const typeLabel: Record<string, string> = {
@@ -100,19 +100,19 @@ export function ResourceThumbnailGrid({
 
   if (resources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/5 px-6 py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 ring-1 ring-primary/15">
-          <Link2 className="h-8 w-8 text-primary/70" />
+      <div className="relative overflow-hidden rounded-2xl border border-dashed border-border/50 bg-linear-to-b from-muted/30 to-transparent px-6 py-16 text-center">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-linear-to-br from-primary/15 to-violet-500/10 shadow-inner ring-1 ring-primary/20">
+          <Link2 className="h-9 w-9 text-primary/80" />
         </div>
-        <h3 className="mt-4 text-sm font-semibold text-foreground">No shared links yet</h3>
-        <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
-          Add docs, repos, and drive links from the Portal — they&apos;ll show up here automatically.
+        <h3 className="mt-5 text-base font-semibold tracking-tight text-foreground">No resources yet</h3>
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Drop links in the Portal — they sync here so your whole flow stays in one place.
         </p>
         {portalHref && (
-          <Button asChild variant="outline" size="sm" className="mt-5 gap-1.5">
+          <Button asChild variant="default" size="sm" className="mt-6 gap-2 rounded-xl px-6">
             <Link href={portalHref}>
-              Go to Portal
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              Add links in Portal
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </Button>
         )}
@@ -121,7 +121,7 @@ export function ResourceThumbnailGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {resources.map((r) => {
         const Icon = typeIcons[r.resource_type] || Link2
         const colors = typeColors[r.resource_type] || typeColors.other
@@ -134,59 +134,66 @@ export function ResourceThumbnailGrid({
           <div
             key={r.id}
             className={cn(
-              "group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-xs transition-all duration-200",
-              "hover:shadow-md hover:-translate-y-0.5 hover:border-primary/25",
-              colors.border
+              "group relative flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/90 shadow-md shadow-black/4 ring-1 ring-border/30 transition-all duration-300",
+              "hover:-translate-y-1 hover:shadow-xl hover:shadow-black/8 hover:ring-primary/20",
+              "dark:shadow-black/40 dark:hover:shadow-black/60"
             )}
           >
-            {/* Thumbnail — valid HTML: no button inside <a> */}
-            <div className={cn("relative h-22", colors.bg)}>
+            <div
+              className={cn(
+                "relative h-28 overflow-hidden bg-linear-to-br",
+                colors.bg
+              )}
+            >
+              <div className="absolute inset-0 bg-linear-to-t from-white/15 to-transparent dark:from-white/5" />
               <a
                 href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="absolute inset-0 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
+                className="absolute inset-0 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label={`Open ${r.title}`}
               >
-                <Icon className={cn("h-9 w-9 opacity-25", colors.text)} />
+                <Icon className={cn("h-12 w-12 opacity-20", colors.text)} />
                 {favicon && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <Image
-                      src={favicon}
-                      alt=""
-                      width={36}
-                      height={36}
-                      className="rounded-lg shadow-sm"
-                      unoptimized
-                    />
+                  <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                    <span
+                      className={cn(
+                        "rounded-2xl bg-background/90 p-2.5 shadow-lg ring-2 backdrop-blur-sm",
+                        colors.ring
+                      )}
+                    >
+                      <Image
+                        src={favicon}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="rounded-lg"
+                        unoptimized
+                      />
+                    </span>
                   </span>
                 )}
               </a>
 
-              <span
-                className={cn(
-                  "pointer-events-none absolute left-2 top-2 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                  "bg-background/90 text-foreground/80 shadow-sm backdrop-blur-sm ring-1 ring-border/40"
-                )}
-              >
+              <span className="pointer-events-none absolute left-3 top-3 rounded-lg bg-background/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-foreground/90 shadow-sm backdrop-blur-md">
                 {label}
               </span>
 
-              <div className="absolute right-2 top-2 flex gap-1">
+              <div className="absolute right-2 top-2 flex gap-1.5">
                 {showShare && (
                   <button
                     type="button"
                     onClick={() => void copyAndOpen(r.id, r.url)}
                     className={cn(
-                      "flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-semibold shadow-sm transition-colors",
-                      "bg-background/95 text-blue-600 ring-1 ring-border/50 backdrop-blur-sm",
-                      "hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/50"
+                      "flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold shadow-md backdrop-blur-md transition-colors",
+                      "bg-background/95 text-blue-600 ring-1 ring-border/40",
+                      "hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/60"
                     )}
                   >
                     {copiedId === r.id ? (
-                      <Check className="h-3 w-3" />
+                      <Check className="h-3.5 w-3.5" />
                     ) : (
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3.5 w-3.5" />
                     )}
                     Share
                   </button>
@@ -195,10 +202,10 @@ export function ResourceThumbnailGrid({
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-background/90 text-muted-foreground shadow-sm ring-1 ring-border/50 backdrop-blur-sm transition-colors hover:text-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-background/95 text-muted-foreground shadow-md ring-1 ring-border/40 backdrop-blur-md transition-colors hover:text-foreground"
                   aria-label="Open in new tab"
                 >
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
             </div>
@@ -207,19 +214,21 @@ export function ResourceThumbnailGrid({
               href={r.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-1 flex-col p-3 transition-colors hover:bg-muted/30"
+              className="flex flex-1 flex-col border-t border-border/30 bg-card/50 p-4 transition-colors hover:bg-muted/20"
             >
-              <p className="line-clamp-2 text-sm font-semibold leading-snug tracking-tight text-foreground">
+              <p className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight text-foreground">
                 {r.title}
               </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 {favicon && (
-                  <Image src={favicon} alt="" width={12} height={12} className="rounded-sm opacity-80" unoptimized />
+                  <Image src={favicon} alt="" width={14} height={14} className="rounded-sm opacity-90" unoptimized />
                 )}
-                <span className="truncate">{domain}</span>
+                <span className="truncate font-medium">{domain}</span>
               </div>
               {r.profiles?.full_name && (
-                <p className="mt-1.5 truncate text-[10px] text-muted-foreground/70">Added by {r.profiles.full_name}</p>
+                <p className="mt-2 truncate text-[11px] text-muted-foreground/80">
+                  Shared by <span className="text-foreground/80">{r.profiles.full_name}</span>
+                </p>
               )}
             </a>
           </div>
